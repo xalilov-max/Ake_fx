@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- HEADER SECTION - Modern Hero Area -->
+<div class="header-section position-relative overflow-hidden">
+    <!-- Video background with overlay -->
+    <div class="video-overlay position-absolute w-100 h-100 bg-dark" style="opacity: 0.5; z-index: 1;"></div>
+    
+    <video autoplay muted loop class="header-video position-absolute w-100 h-100 object-fit-cover">
+        <source src="{% static 'videos/header-bg.mp4' %}" type="video/mp4">
+        Sizning brauzeringiz videoni qo'llab-quvvatlamaydi.
+    </video>
+    
+    <!-- Header Content with improved visual hierarchy -->
+    <div class="header-content position-relative z-10 text-center text-white py-5" style="z-index: 2;">
+        <div class="container py-5">
+            <h1 class="display-3 fw-bold mb-3 mt-5">ake.fx Trading Akademiyasiga Xush Kelibsiz</h1>
+            <p class="lead fs-4 mb-4">Professional mentorlar bilan zamonaviy kurslar</p>
+            <a href="#courses" class="btn btn-primary btn-lg px-4 rounded-pill">Kurslarni ko'rish</a>
+        </div>
+    </div>
+</div>
+
+<!-- COURSES SECTION - With cards redesign -->
+<section id="courses" class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="badge bg-primary mb-2">Ta'lim</span>
+            <h2 class="display-5 fw-bold">📚 Bizning Kurslar</h2>
+            <div class="divider mx-auto my-3" style="width: 50px; height: 3px; background-color: #0d6efd;"></div>
+            <p class="text-muted">Trading bo'yicha professional kurslarimiz bilan tanishing</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for course in courses %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden transition-transform hover-lift">
+                    <div class="position-relative">
+                        <a href="{% url 'course_detail' course.id %}">
+                            <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 220px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-success rounded-pill px-3">${{ course.price }}</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-3">
+                            <a href="{% url 'course_detail' course.id %}" class="text-decoration-none text-dark stretched-link">
+                                {{ course.title }}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted mb-3">{{ course.description|truncatechars:100 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-clock me-2 text-primary"></i>
+                                <small>{{ course.duration }}</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-person me-2 text-primary"></i>
+                                <small>{{ course.mentor.full_name }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 p-4 pt-0">
+                        <div class="d-grid">
+                            <a href="{% url 'course_buy' course.id %}" class="btn btn-primary">💳 Sotib olish</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- MENTORS SECTION - Modern cards with hover effects -->
+<section id="mentors" class="py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="badge bg-primary mb-2">Ekspertlar</span>
+            <h2 class="display-5 fw-bold">🧑‍🏫 Bizning Mentorlar</h2>
+            <div class="divider mx-auto my-3" style="width: 50px; height: 3px; background-color: #0d6efd;"></div>
+            <p class="text-muted">Professional bilim va tajriba bilan o'rtoqlashadigan mutaxassislarimiz</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for mentor in mentors %}
+            <div class="col-md-3">
+                <div class="mentor-card text-center p-3 rounded-3 shadow-sm h-100 transition-all hover-lift bg-white">
+                    {% if mentor.image %}
+                    <div class="mentor-img-wrapper mb-3 mx-auto position-relative" style="width: 140px; height: 140px;">
+                        <img src="{{ mentor.image.url }}" 
+                             alt="{{ mentor.full_name }}" 
+                             class="rounded-circle border border-3 border-primary p-1" 
+                             width="140" 
+                             height="140" 
+                             style="object-fit: cover;">
+                    </div>
+                    {% endif %}
+                    <h5 class="fw-bold mb-1">{{ mentor.full_name }}</h5>
+                    <p class="text-primary small mb-3">{{ mentor.specialty }}</p>
+                    <a href="{% url 'mentor_detail' mentor.id %}" class="btn btn-outline-primary btn-sm rounded-pill px-4">Profilni ko'rish</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- REVIEWS SECTION - With testimonial cards -->
+<section id="reviews" class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="badge bg-primary mb-2">Testimoniallar</span>
+            <h2 class="display-5 fw-bold">⭐ O'quvchilar fikrlari</h2>
+            <div class="divider mx-auto my-3" style="width: 50px; height: 3px; background-color: #0d6efd;"></div>
+            <p class="text-muted">Kurslarimizdagi talabalarning haqiqiy tajribalari</p>
+        </div>
+        
+        <div id="reviewCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for review in reviews %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="testimonial-card bg-white p-4 shadow-sm rounded-3 mx-auto" style="max-width: 700px;">
+                        <div class="d-flex flex-column align-items-center">
+                            <div class="mb-3">
+                                <i class="bi bi-quote fs-1 text-primary opacity-50"></i>
+                            </div>
+                            <blockquote class="blockquote text-center mb-3">
+                                <p class="mb-0 fs-5 fst-italic">{{ review.comment }}</p>
+                            </blockquote>
+                            <div class="rating mb-2">
+                                {% for i in "12345" %}
+                                <i class="bi bi-star-fill text-warning"></i>
+                                {% endfor %}
+                            </div>
+                            <footer class="text-center">
+                                <h6 class="fw-bold mb-0">{{ review.student.full_name }}</h6>
+                                <small class="text-muted">O'quvchi</small>
+                            </footer>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#reviewCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon bg-primary rounded-circle p-2"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#reviewCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon bg-primary rounded-circle p-2"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+            <div class="carousel-indicators position-relative mt-4">
+                {% for review in reviews %}
+                <button type="button" 
+                       data-bs-target="#reviewCarousel" 
+                       data-bs-slide-to="{{ forloop.counter0 }}" 
+                       class="bg-primary {% if forloop.first %}active{% endif %}" 
+                       aria-current="{% if forloop.first %}true{% endif %}"
+                       aria-label="Slide {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA SECTION - Call to action banner -->
+<section class="cta-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 text-center text-lg-start">
+                <h3 class="mb-2">Hoziroq o'rganishni boshlang!</h3>
+                <p class="mb-0">Professional trading ko'nikmalaringizni rivojlantirish uchun bugungi kunda ro'yxatdan o'ting</p>
+            </div>
+            <div class="col-lg-4 text-center text-lg-end mt-3 mt-lg-0">
+                <a href="#courses" class="btn btn-light btn-lg rounded-pill px-4">Kurslarni ko'rish</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Custom styles for this template -->
+<style>
+    /* Smooth transitions for hover effects */
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+    
+    .transition-transform {
+        transition: transform 0.3s ease;
+    }
+    
+    /* Card hover effect */
+    .hover-lift:hover {
+        transform: translateY(-10px);
+    }
+    
+    /* Ensure video covers full header area */
+    .header-section {
+        height: 80vh;
+        min-height: 500px;
+    }
+    
+    /* Bootstrap icons include - add to your base.html if needed */
+    @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css");
+    
+    /* Section spacing */
+    section {
+        overflow: hidden;
+    }
+    
+    /* Enhanced carousel controls */
+    .carousel-control-prev-icon, .carousel-control-next-icon {
+        width: 3rem;
+        height: 3rem;
+    }
+    
+    /* Carousel indicator styling */
+    .carousel-indicators [data-bs-target] {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin: 0 5px;
+    }
+</style>
+
+{% endblock %}

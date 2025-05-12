@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">O'quvchilar Sharhlari</h2>
+    
+    <!-- Debug ma'lumot -->
+    <div class="alert alert-secondary">
+        <p>Jami sharhlar: {{ reviews|length }} ta</p>
+        <p>Sharlar mavjudmi?: {{ reviews_exist|yesno:"Ha,Yo'q" }}</p>
+    </div>
+
+    {% if reviews %}
+    <div class="row">
+        {% for review in reviews %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="mb-0">{{ review.course.title }}</h5>
+                        <span class="badge bg-primary">{{ review.rating }}/5</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <blockquote class="blockquote mb-0">
+                        <p>{{ review.comment }}</p>
+                        <footer class="blockquote-footer">
+                            {{ review.student.full_name }}
+                            <cite title="Sana">{{ review.date|date:"d.m.Y H:i" }}</cite>
+                        </footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">Diqqat!</h4>
+        <p>Hozircha hech qanday sharh mavjud emas.</p>
+        <hr>
+        <p class="mb-0">Admin panel orqali sharh qo'shishingiz mumkin.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

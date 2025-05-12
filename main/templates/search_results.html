@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">🔍 Qidiruv natijalari</h2>
+    {% if query %}
+        <p class="text-muted">Qidiruv so'zi: <strong>{{ query }}</strong></p>
+        {% if courses %}
+        <div class="row">
+            {% for course in courses %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow">
+                    <a href="{% url 'course_detail' course.id %}">
+                        <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'course_detail' course.id %}" class="text-decoration-none text-dark">
+                                {{ course.title }}
+                            </a>
+                        </h5>
+                        <p class="card-text">{{ course.description|truncatechars:100 }}</p>
+                        <p class="text-primary fw-bold">${{ course.price }}</p>
+                        <p class="text-muted">Davomiyligi: {{ course.duration }}</p>
+                        <p class="text-muted">Mentor: {{ course.mentor.full_name }}</p>
+                        <a href="{% url 'course_buy' course.id %}" class="btn btn-success btn-sm mt-2">💳 Sotib olish</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">🚫 Hech qanday kurs topilmadi.</p>
+        {% endif %}
+    {% else %}
+        <p class="text-muted">Iltimos, qidiruv so'zini kiriting.</p>
+    {% endif %}
+</div>
+{% endblock %}

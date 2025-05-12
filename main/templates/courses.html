@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📚 Kurslar ro'yxati</h2>
+    <div class="row">
+        {% for course in courses %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                <a href="{% url 'course_detail' course.id %}">
+                    <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'course_detail' course.id %}" class="text-decoration-none text-dark">
+                            {{ course.title }}
+                        </a>
+                    </h5>
+                    <p>{{ course.description|truncatewords:20 }}</p>
+                    <p><b>💵 {{ course.price }} $</b></p>
+                    <form method="POST" action="{% url 'enroll_course' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="course_id" value="{{ course.id }}">
+                        <button type="submit" class="btn btn-success">➕ Yozilish</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  {% if user.is_superuser %}
+    <h2>Admin foydalanuvchilar uchun profil mavjud emas</h2>
+    <a href="{% url 'admin:index' %}" class="btn btn-primary">Admin panelga qaytish</a>
+  {% else %}
+    <h2>👤 Profil: {{ request.user.username }}</h2>
+    <div class="row">
+      <div class="col-md-4 text-center">
+        {% if profile.image %}
+        <img src="{{ profile.image.url }}" width="150" class="rounded-circle mb-3">
+        {% endif %}
+        <p><strong>Email:</strong> {{ request.user.email }}</p>
+        <p><strong>Bio:</strong> {{ profile.bio|default:'Yo‘q' }}</p>
+        <a href="{% url 'password_change' %}" class="btn btn-warning mt-3">🔒 Parolni o‘zgartirish</a>
+      </div>
+      <div class="col-md-8">
+        <h4>🎓 Sotib olingan kurslar</h4>
+        <ul class="list-group">
+          {% for order in orders %}
+          <li class="list-group-item">
+            {{ order.course.title }} ({{ order.created_at|date:"d.m.Y" }})
+          </li>
+          {% empty %}
+          <li class="list-group-item">🚫 Siz hali hech qanday kurs sotib olmadingiz.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ course.title }}</h2>
+<p>{{ course.description }}</p>
+<p><b>💵 Narxi: {{ course.price }} $</b></p>
+<p><b>📅 Davomiyligi: {{ course.duration }}</b></p>
+<p><b>🧑‍🏫 Mentor: {{ course.mentor.full_name }}</b></p>
+
+<h3 class="mt-4">📖 Darslar</h3>
+<ul>
+    {% for lesson in lessons %}
+    <li>
+        <a href="{{ lesson.video_url }}" target="_blank">{{ lesson.title }}</a>
+        <button class="btn btn-success btn-sm complete-lesson" data-lesson-id="{{ lesson.id }}">✅ O'tildi</button>
+    </li>
+    {% empty %}
+    <li>🚫 Hali darslar qo‘shilmagan.</li>
+    {% endfor %}
+</ul>
+
+<!-- Sotib olish tugmasi -->
+<div class="mt-4">
+    {% if request.user.is_authenticated %}
+        {% if course.is_paid %}
+        <p class="text-success">Siz ushbu kursni allaqachon sotib olgansiz.</p>
+        {% else %}
+        <a href="{% url 'course_buy' course.id %}" class="btn btn-success btn-lg">💳 Sotib olish ({{ course.price }} so‘m)</a>
+        {% endif %}
+    {% else %}
+    <p class="text-warning">Kursni sotib olish uchun <a href="{% url 'login' %}">tizimga kiring</a>.</p>
+    {% endif %}
+</div>
+
+<script>
+    document.querySelectorAll(".complete-lesson").forEach(button => {
+        button.addEventListener("click", function() {
+            let lessonId = this.getAttribute("data-lesson-id");
+            fetch("{% url 'complete_lesson' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "lesson_id=" + lessonId
+            }).then(response => response.json())
+              .then(data => {
+                  alert(data.message);
+              });
+        });
+    });
+</script>
+{% endblock %}

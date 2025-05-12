@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+  <div class="col-md-4 text-center">
+    {% if mentor.image %}
+    <img src="{{ mentor.image.url }}" class="img-fluid rounded-circle mb-3" alt="{{ mentor.full_name }}" style="width: 200px; height: 200px; object-fit: cover;">
+    {% endif %}
+    <h3>{{ mentor.full_name }}</h3>
+    <p><b>Ixtisoslik:</b> {{ mentor.specialty }}</p>
+    <p>{{ mentor.bio }}</p>
+    <div>
+      {% if mentor.instagram %}
+      <a href="{{ mentor.instagram }}" target="_blank" class="btn btn-sm btn-primary">📸 Instagram</a>
+      {% endif %}
+      {% if mentor.telegram %}
+      <a href="{{ mentor.telegram }}" target="_blank" class="btn btn-sm btn-info">✈️ Telegram</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-8">
+    <h4>📚 O‘qitayotgan kurslari</h4>
+    {% if courses %}
+    <ul class="list-group">
+      {% for course in courses %}
+      <li class="list-group-item">
+        <a href="{% url 'course_detail' course.id %}" class="text-decoration-none">{{ course.title }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>🚫 Hozircha kurslar mavjud emas.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
