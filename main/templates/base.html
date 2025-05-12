@@ -6,65 +6,400 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ake.fx - Trading Akademiya</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --light-bg: #f8fafc;
+            --dark-bg: #0f172a;
+            --dark-nav: #1e293b;
+            --light-text: #f1f5f9;
+            --dark-text: #334155;
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: var(--transition);
+        }
+        
+        body.light-mode {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+        }
+        
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+        
+        .navbar {
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 0 10px;
+            border-radius: 5px;
+        }
+        
+        body.light-mode .navbar {
+            background-color: white !important;
+        }
+        
+        body.dark-mode .navbar {
+            background-color: var(--dark-nav) !important;
+        }
+        
+        body.light-mode .navbar-nav .nav-link {
+            color: var(--dark-text);
+        }
+        
+        body.dark-mode .navbar-nav .nav-link {
+            color: var(--light-text);
+        }
+        
+        .navbar-nav .nav-link {
+            font-weight: 500;
+            margin: 0 5px;
+            position: relative;
+            padding: 8px 16px;
+            transition: var(--transition);
+        }
+        
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: var(--accent-color);
+            transition: var(--transition);
+            transform: translateX(-50%);
+        }
+        
+        .navbar-nav .nav-link:hover::after {
+            width: 80%;
+        }
+        
+        .navbar-nav .nav-link.active::after {
+            width: 80%;
+        }
+        
+        .form-control {
+            border-radius: 20px;
+            padding: 10px 20px;
+            border: 1px solid #e2e8f0;
+            transition: var(--transition);
+        }
+        
+        body.dark-mode .form-control {
+            background-color: #334155;
+            border-color: #475569;
+            color: white;
+        }
+        
+        body.dark-mode .form-control::placeholder {
+            color: #cbd5e1;
+        }
+        
+        .btn {
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        #toggle-dark-mode {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background-color: transparent;
+            color: #cbd5e1;
+            transition: var(--transition);
+        }
+        
+        body.light-mode #toggle-dark-mode {
+            color: #64748b;
+        }
+        
+        body.light-mode #toggle-dark-mode:hover {
+            background-color: #e2e8f0;
+        }
+        
+        body.dark-mode #toggle-dark-mode {
+            color: #cbd5e1;
+        }
+        
+        body.dark-mode #toggle-dark-mode:hover {
+            background-color: #334155;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border-left: 4px solid transparent;
+        }
+        
+        .alert-success {
+            border-left-color: #10b981;
+        }
+        
+        .alert-danger {
+            border-left-color: #ef4444;
+        }
+        
+        .alert-warning {
+            border-left-color: #f59e0b;
+        }
+        
+        .alert-info {
+            border-left-color: #3b82f6;
+        }
+        
+        footer {
+            padding: 30px 0;
+            transition: var(--transition);
+        }
+        
+        body.light-mode footer {
+            background-color: #f1f5f9;
+            color: var(--dark-text);
+        }
+        
+        body.dark-mode footer {
+            background-color: var(--dark-nav);
+            color: var(--light-text);
+        }
+        
+        .social-icons {
+            margin-top: 15px;
+        }
+        
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin: 0 5px;
+            color: white;
+            background-color: var(--primary-color);
+            transition: var(--transition);
+        }
+        
+        .social-icons a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .navbar-collapse {
+                background-color: inherit;
+                padding: 20px;
+                border-radius: 10px;
+                margin-top: 10px;
+            }
+            
+            .navbar-nav .nav-link::after {
+                left: 0;
+                transform: none;
+            }
+            
+            .navbar-nav .nav-link:hover::after {
+                width: 30%;
+            }
+        }
+    </style>
 </head>
 <body class="light-mode">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="/">ake.fx</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a href="/" class="nav-link">Bosh sahifa</a></li>
-                <li class="nav-item"><a href="/courses/" class="nav-link">Kurslar</a></li>
-                <li class="nav-item"><a href="/mentors/" class="nav-link">Mentorlar</a></li>
-                <li class="nav-item"><a href="/contact/" class="nav-link">Aloqa</a></li>
-            </ul>
-            <form class="d-flex me-3" action="{% url 'search' %}" method="get">
-                <input class="form-control me-2" type="search" name="q" placeholder="Kurs qidirish..." aria-label="Search">
-                <button class="btn btn-outline-light" type="submit">Qidirish</button>
-            </form>
-            <ul class="navbar-nav">
-                {% if user.is_authenticated %}
-                    <li class="nav-item"><a href="{% url 'profile' %}" class="nav-link">Profil</a></li>
-                    <li class="nav-item">
-                        <form action="{% url 'logout' %}" method="post" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Chiqish</button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li class="nav-item"><a href="{% url 'login' %}" class="nav-link">Kirish</a></li>
-                {% endif %}
-            </ul>
-            <!-- Night Mode Toggle -->
-            <button id="toggle-dark-mode" class="btn btn-outline-light ms-3">🌙 Night Mode</button>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">ake.fx</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a href="/" class="nav-link">Bosh sahifa</a></li>
+                    <li class="nav-item"><a href="/courses/" class="nav-link">Kurslar</a></li>
+                    <li class="nav-item"><a href="/mentors/" class="nav-link">Mentorlar</a></li>
+                    <li class="nav-item"><a href="/contact/" class="nav-link">Aloqa</a></li>
+                </ul>
+                <form class="d-flex me-3" action="{% url 'search' %}" method="get">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="q" placeholder="Kurs qidirish..." aria-label="Search">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i> Profil
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">Mening profilim</a></li>
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">Mening kurslarim</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-sign-out-alt me-1"></i> Chiqish
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-sign-in-alt me-1"></i> Kirish
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+                <!-- Night Mode Toggle -->
+                <button id="toggle-dark-mode" class="ms-3">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
         </div>
+    </nav>
+
+    {% if messages %}
+    <div class="container mt-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle me-2"></i>
+                {% elif message.tags == 'error' or message.tags == 'danger' %}
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                {% elif message.tags == 'info' %}
+                    <i class="fas fa-info-circle me-2"></i>
+                {% endif %}
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
     </div>
-</nav>
+    {% endif %}
 
-<div class="container my-4">
-    {% block content %}{% endblock %}
-</div>
-
-{% if messages %}
-<div class="container mt-3">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="container my-4">
+        {% block content %}{% endblock %}
     </div>
-    {% endfor %}
-</div>
-{% endif %}
 
-<footer class="bg-dark text-light text-center p-3">
-    &copy; 2025 ake.fx | Shokh.ake tomonidan asos solingan
-</footer>
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <h4 class="mb-3">ake.fx</h4>
+                    <p>Professional Trading Akademiya - 2025 yildan buyon faoliyat yuritib kelmoqda</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p>&copy; 2025 ake.fx | Shokh.ake tomonidan asos solingan</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'js/script.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script>
+        // Dark mode toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleDarkMode = document.getElementById('toggle-dark-mode');
+            const body = document.body;
+            const icon = toggleDarkMode.querySelector('i');
+            
+            // Check for saved user preference
+            const darkMode = localStorage.getItem('darkMode');
+            
+            // Set initial mode based on saved preference or system preference
+            if (darkMode === 'enabled' || (darkMode === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+            
+            // Toggle dark mode
+            toggleDarkMode.addEventListener('click', () => {
+                if (body.classList.contains('dark-mode')) {
+                    body.classList.remove('dark-mode');
+                    body.classList.add('light-mode');
+                    localStorage.setItem('darkMode', 'disabled');
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    body.classList.remove('light-mode');
+                    body.classList.add('dark-mode');
+                    localStorage.setItem('darkMode', 'enabled');
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            });
+            
+            // Mark current page as active
+            const currentPage = window.location.pathname;
+            document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+                if (link.getAttribute('href') === currentPage || (currentPage.includes(link.getAttribute('href')) && link.getAttribute('href') !== '/')) {
+                    link.classList.add('active');
+                } else if (currentPage === '/' && link.getAttribute('href') === '/') {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
