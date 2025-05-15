@@ -1,28 +1,95 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2 class="mb-4">📩 Biz bilan bog‘laning</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-lg">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="text-center mb-4 fw-bold text-primary">
+                        <i class="fas fa-envelope me-2"></i> Biz bilan bog'lanish uchun
+                    </h2>
+                    
+                    {% if messages %}
+                        <div class="messages mb-4">
+                            {% for message in messages %}
+                                <div class="alert alert-success shadow-sm border-0 d-flex align-items-center" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <div>{{ message }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <form method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="{{ form.name.id_for_label }}" class="form-label fw-medium">
+                                <i class="fas fa-user me-1"></i> Ismingiz
+                            </label>
+                            {{ form.name|safe }}
+                            <div class="invalid-feedback">Iltimos, ismingizni kiriting.</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.email.id_for_label }}" class="form-label fw-medium">
+                                <i class="fas fa-at me-1"></i> Elektron pochta
+                            </label>
+                            {{ form.email|safe }}
+                            <div class="invalid-feedback">Iltimos, to'g'ri elektron pochta manzilini kiriting.</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.message.id_for_label }}" class="form-label fw-medium">
+                                <i class="fas fa-comment-alt me-1"></i> Xabaringiz
+                            </label>
+                            {{ form.message|safe }}
+                            <div class="invalid-feedback">Iltimos, xabaringizni kiriting.</div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 py-2 shadow-sm">
+                                <i class="fas fa-paper-plane me-2"></i> Yuborish
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4 text-muted">
+                <p class="mb-0"><i class="fas fa-phone me-2"></i> +998 90 123 45 67</p>
+                <p class="mb-0"><i class="fas fa-map-marker-alt me-2"></i> Toshkent, O'zbekiston</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert alert-success">{{ message }}</div>
-  {% endfor %}
-{% endif %}
-
-<form method="POST">
-    {% csrf_token %}
-    <div class="mb-3">
-        {{ form.name.label_tag }}
-        {{ form.name }}
-    </div>
-    <div class="mb-3">
-        {{ form.email.label_tag }}
-        {{ form.email }}
-    </div>
-    <div class="mb-3">
-        {{ form.message.label_tag }}
-        {{ form.message }}
-    </div>
-    <button type="submit" class="btn btn-primary">Yuborish</button>
-</form>
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        
+        // Fetch all forms we want to apply validation styles to
+        var forms = document.querySelectorAll('.needs-validation');
+        
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+    
+    // Add Bootstrap classes to Django form elements
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('#{{ form.name.id_for_label }}').classList.add('form-control');
+        document.querySelector('#{{ form.email.id_for_label }}').classList.add('form-control');
+        document.querySelector('#{{ form.message.id_for_label }}').classList.add('form-control');
+    });
+</script>
 {% endblock %}
