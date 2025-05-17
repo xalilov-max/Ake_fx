@@ -1,31 +1,452 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">📚 Kurslar ro'yxati</h2>
-    <div class="row">
-        {% for course in courses %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow">
-                <a href="{% url 'course_detail' course.id %}">
-                    <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <a href="{% url 'course_detail' course.id %}" class="text-decoration-none text-dark">
-                            {{ course.title }}
+<div class="courses-container">
+    <h2 class="courses-header"> Premium Kurslarimiz</h2>
+    
+    <div class="glass-carousel-container">
+        <div class="glass-carousel">
+            {% for course in courses %}
+            <div class="glass-carousel-item">
+                <div class="glass-card">
+                    <div class="glass-card-header">
+                        <span class="course-badge">{{ forloop.counter }}</span>
+                        <a href="{% url 'course_detail' course.id %}" class="glass-image-container">
+                            <img src="{{ course.image.url }}" class="glass-image" alt="{{ course.title }}">
+                            <div class="glass-overlay"></div>
                         </a>
-                    </h5>
-                    <p>{{ course.description|truncatewords:20 }}</p>
-                    <p><b>💵 {{ course.price }} $</b></p>
-                    <form method="POST" action="{% url 'enroll_course' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="course_id" value="{{ course.id }}">
-                        <button type="submit" class="btn btn-success">➕ Yozilish</button>
-                    </form>
+                    </div>
+                    <div class="glass-card-body">
+                        <h3 class="course-title">
+                            <a href="{% url 'course_detail' course.id %}">{{ course.title }}</a>
+                        </h3>
+                        <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+                        
+                        <div class="course-meta">
+                            <span class="course-price">${{ course.price }} </span>
+                            <form method="POST" action="{% url 'enroll_course' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="course_id" value="{{ course.id }}">
+                                <button type="submit" class="enroll-btn">
+                                    <span>Yozilish</span>
+                                    <svg viewBox="0 0 13 10" height="10px" width="15px">
+                                        <path d="M1,5 L11,5"></path>
+                                        <polyline points="8 1 12 5 8 9"></polyline>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        
+        <button class="carousel-control prev" aria-label="Previous">
+            <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"></path></svg>
+        </button>
+        <button class="carousel-control next" aria-label="Next">
+            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg>
+        </button>
+        
+        <div class="carousel-progress">
+            <div class="progress-bar"></div>
+        </div>
     </div>
 </div>
+
+<style>
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3a0ca3;
+    --text-color: #1b1b2b;
+    --light-text: #ffffff;
+    --glass-blur: 12px;
+    --glass-opacity: 0.25;
+    --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+/* Asosiy konteyner */
+.courses-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.courses-header {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    color: var(--text-color);
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0 2rem;
+}
+
+.courses-header::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+}
+
+/* Karusel konteyneri */
+.glass-carousel-container {
+    position: relative;
+    padding: 1rem 0;
+    margin: 0 auto;
+}
+
+.glass-carousel {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem 1rem;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.glass-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.glass-carousel-item {
+    scroll-snap-align: center;
+    min-width: 320px;
+    width: 350px;
+    flex: 0 0 auto;
+    transition: var(--transition);
+}
+
+/* Glass card dizayni */
+.glass-card {
+    background: rgba(255, 255, 255, var(--glass-opacity));
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    overflow: hidden;
+    transition: var(--transition);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.glass-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+}
+
+.glass-card-header {
+    position: relative;
+    height: 200px;
+}
+
+.course-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: var(--primary-color);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    z-index: 2;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.glass-image-container {
+    display: block;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.glass-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.glass-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent 70%);
+}
+
+.glass-card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.course-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.4rem;
+    color: var(--text-color);
+}
+
+.course-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.course-title a:hover {
+    color: var(--primary-color);
+}
+
+.course-description {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.course-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.course-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.enroll-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+    overflow: hidden;
+    position: relative;
+}
+
+.enroll-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    transition: var(--transition);
+}
+
+.enroll-btn:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+}
+
+.enroll-btn:hover svg {
+    transform: translateX(3px);
+}
+
+/* Karusel navigatsiya */
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    transition: var(--transition);
+    opacity: 0.9;
+}
+
+.carousel-control svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--primary-color);
+    stroke-width: 2;
+}
+
+.carousel-control:hover {
+    transform: translateY(-50%) scale(1.1);
+    opacity: 1;
+}
+
+.carousel-control.prev {
+    left: -25px;
+}
+
+.carousel-control.next {
+    right: -25px;
+}
+
+/* Progress bar */
+.carousel-progress {
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.05);
+    margin-top: 1rem;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color: #f8f9fa;
+        --primary-color: #4895ef;
+        --secondary-color: #4361ee;
+    }
+    
+    .glass-card {
+        background: rgba(30, 30, 30, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .course-description {
+        opacity: 0.7;
+    }
+    
+    .carousel-control {
+        background: rgba(30, 30, 30, 0.7);
+    }
+    
+    .carousel-control svg {
+        stroke: white;
+    }
+}
+
+/* JavaScript uchun kerak bo'ladigan klasslar */
+.glass-carousel-item.active {
+    transform: scale(1.05);
+}
+
+/* Responsive dizayn */
+@media (max-width: 768px) {
+    .glass-carousel-item {
+        min-width: 280px;
+        width: 300px;
+    }
+    
+    .carousel-control {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .carousel-control.prev {
+        left: -15px;
+    }
+    
+    .carousel-control.next {
+        right: -15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .courses-header {
+        font-size: 2rem;
+    }
+    
+    .glass-carousel {
+        gap: 1rem;
+        padding: 1rem 0.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.querySelector('.glass-carousel');
+    const items = document.querySelectorAll('.glass-carousel-item');
+    const prevBtn = document.querySelector('.carousel-control.prev');
+    const nextBtn = document.querySelector('.carousel-control.next');
+    const progressBar = document.querySelector('.progress-bar');
+    
+    let currentIndex = 0;
+    const itemWidth = items[0].offsetWidth + 32; // gap bilan birga
+    
+    function updateCarousel() {
+        carousel.scrollTo({
+            left: currentIndex * itemWidth,
+            behavior: 'smooth'
+        });
+        
+        // Progress bar yangilash
+        progressBar.style.width = `${(currentIndex + 1) / items.length * 100}%`;
+        
+        // Active klassini yangilash
+        items.forEach((item, index) => {
+            item.classList.toggle('active', index === currentIndex);
+        });
+    }
+    
+    // Navigatsiya tugmalari
+    prevBtn.addEventListener('click', () => {
+        currentIndex = Math.max(0, currentIndex - 1);
+        updateCarousel();
+    });
+    
+    nextBtn.addEventListener('click', () => {
+        currentIndex = Math.min(items.length - 1, currentIndex + 1);
+        updateCarousel();
+    });
+    
+    // Avtomatik scroll
+    let autoScroll = setInterval(() => {
+        currentIndex = (currentIndex + 1) % items.length;
+        updateCarousel();
+    }, 5000);
+    
+    // Pause on hover
+    carousel.addEventListener('mouseenter', () => {
+        clearInterval(autoScroll);
+    });
+    
+    carousel.addEventListener('mouseleave', () => {
+        autoScroll = setInterval(() => {
+            currentIndex = (currentIndex + 1) % items.length;
+            updateCarousel();
+        }, 5000);
+    });
+    
+    // Dastlabki holatni sozlash
+    updateCarousel();
+});
+</script>
 {% endblock %}

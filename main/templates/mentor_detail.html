@@ -1,35 +1,210 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<div class="row">
-  <div class="col-md-4 text-center">
-    {% if mentor.image %}
-    <img src="{{ mentor.image.url }}" class="img-fluid rounded-circle mb-3" alt="{{ mentor.full_name }}" style="width: 200px; height: 200px; object-fit: cover;">
-    {% endif %}
-    <h3>{{ mentor.full_name }}</h3>
-    <p><b>Ixtisoslik:</b> {{ mentor.specialty }}</p>
-    <p>{{ mentor.bio }}</p>
-    <div>
-      {% if mentor.instagram %}
-      <a href="{{ mentor.instagram }}" target="_blank" class="btn btn-sm btn-primary">📸 Instagram</a>
-      {% endif %}
-      {% if mentor.telegram %}
-      <a href="{{ mentor.telegram }}" target="_blank" class="btn btn-sm btn-info">✈️ Telegram</a>
-      {% endif %}
+<section class="mentor-profile py-5">
+  <div class="container">
+    <div class="row">
+      <!-- Mentor ma'lumotlari -->
+      <div class="col-lg-4">
+        <div class="mentor-card shadow-lg rounded-4 overflow-hidden bg-white">
+          <div class="mentor-cover position-relative">
+            <div class="gradient-overlay"></div>
+            {% if mentor.image %}
+            <img src="{{ mentor.image.url }}" class="mentor-avatar rounded-circle border border-4 border-white" 
+                 alt="{{ mentor.full_name }}">
+            {% else %}
+            <div class="mentor-avatar rounded-circle border border-4 border-white bg-light d-flex align-items-center justify-content-center">
+              <i class="bi bi-person-fill text-muted" style="font-size: 5rem;"></i>
+            </div>
+            {% endif %}
+          </div>
+          
+          <div class="p-4 text-center">
+            <h2 class="fw-bold mb-1">{{ mentor.full_name }}</h2>
+            <p class="text-primary mb-3">{{ mentor.specialty }}</p>
+            
+            <div class="mentor-bio mb-4">
+              <p class="text-muted">{{ mentor.bio }}</p>
+            </div>
+            
+            <div class="d-flex justify-content-center gap-3 mb-4">
+              {% if mentor.experience %}
+              <div class="text-center">
+                <div class="fs-3 fw-bold text-primary">{{ mentor.experience }}+</div>
+                <small class="text-muted">Yillik tajriba</small>
+              </div>
+              {% endif %}
+              
+              {% if mentor.students_count %}
+              <div class="text-center">
+                <div class="fs-3 fw-bold text-primary">{{ mentor.students_count }}+</div>
+                <small class="text-muted">O'quvchilar</small>
+              </div>
+              {% endif %}
+            </div>
+            
+            <div class="social-links d-flex justify-content-center gap-2">
+              {% if mentor.instagram %}
+              <a href="{{ mentor.instagram }}" target="_blank" class="btn btn-instagram rounded-circle">
+                <i class="bi bi-instagram"></i>
+              </a>
+              {% endif %}
+              
+              {% if mentor.telegram %}
+              <a href="{{ mentor.telegram }}" target="_blank" class="btn btn-telegram rounded-circle">
+                <i class="bi bi-telegram"></i>
+              </a>
+              {% endif %}
+              
+              {% if mentor.linkedin %}
+              <a href="{{ mentor.linkedin }}" target="_blank" class="btn btn-linkedin rounded-circle">
+                <i class="bi bi-linkedin"></i>
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Kurslar ro'yxati -->
+      <div class="col-lg-8 mt-4 mt-lg-0">
+        <div class="mentor-courses bg-white shadow-lg rounded-4 p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0">O'qitayotgan kurslar</h3>
+            <span class="badge bg-primary rounded-pill px-3 py-2">{{ courses.count }} ta kurs</span>
+          </div>
+          
+          {% if courses %}
+          <div class="row g-4">
+            {% for course in courses %}
+            <div class="col-md-6">
+              <div class="course-card border-0 rounded-3 overflow-hidden shadow-sm h-100 transition-all hover-lift">
+                <div class="position-relative">
+                  <a href="{% url 'course_detail' course.id %}">
+                    <img src="{{ course.image.url }}" class="img-fluid w-100" alt="{{ course.title }}" style="height: 160px; object-fit: cover;">
+                  </a>
+                  <span class="badge bg-success position-absolute top-0 end-0 m-3">${{ course.price }}</span>
+                </div>
+                <div class="p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary-soft text-primary">{{ course.level }}</span>
+                    <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ course.duration }}</small>
+                  </div>
+                  <h5 class="fw-bold mb-2">
+                    <a href="{% url 'course_detail' course.id %}" class="text-decoration-none text-dark">{{ course.title }}</a>
+                  </h5>
+                  <p class="text-muted small mb-3">{{ course.description|truncatechars:100 }}</p>
+                  <a href="{% url 'course_detail' course.id %}" class="btn btn-outline-primary btn-sm w-100">
+                    Batafsil <i class="bi bi-arrow-right ms-2"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state text-center py-5">
+            <div class="empty-icon mb-3">
+              <i class="bi bi-book text-muted" style="font-size: 3rem;"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Kurslar topilmadi</h5>
+            <p class="text-muted">Hozircha bu mentorning kurslari mavjud emas</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </div>
-  <div class="col-md-8">
-    <h4>📚 O‘qitayotgan kurslari</h4>
-    {% if courses %}
-    <ul class="list-group">
-      {% for course in courses %}
-      <li class="list-group-item">
-        <a href="{% url 'course_detail' course.id %}" class="text-decoration-none">{{ course.title }}</a>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>🚫 Hozircha kurslar mavjud emas.</p>
-    {% endif %}
-  </div>
-</div>
+</section>
+
+<style>
+  /* Asosiy stil */
+  .mentor-profile {
+    background-color: #f8f9fa;
+  }
+  
+  /* Mentor kartasi */
+  .mentor-card {
+    position: relative;
+    overflow: hidden;
+    border: none;
+  }
+  
+  .mentor-cover {
+    height: 120px;
+    background: linear-gradient(135deg, #6f42c1 0%, #0d6efd 100%);
+  }
+  
+  .gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%);
+  }
+  
+  .mentor-avatar {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  /* Social tugmalar */
+  .btn-instagram {
+    background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .btn-telegram {
+    background: #0088cc;
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Kurs kartalari */
+  .course-card {
+    transition: all 0.3s ease;
+  }
+  
+  .course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  }
+  
+  .hover-lift {
+    transition: all 0.3s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-5px);
+  }
+  
+  .bg-primary-soft {
+    background-color: rgba(13, 110, 253, 0.1);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .mentor-avatar {
+      width: 120px;
+      height: 120px;
+    }
+  }
+</style>
 {% endblock %}
