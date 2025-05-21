@@ -118,6 +118,45 @@ class Lesson(models.Model):
     video_url = models.URLField(verbose_name="Video havolasi", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def get_youtube_id(self):
+        """Extract YouTube video ID from URL"""
+        if "youtube.com/watch?v=" in self.video_url:
+            return self.video_url.split("watch?v=")[1]
+        elif "youtu.be/" in self.video_url:
+            return self.video_url.split("youtu.be/")[1]
+        return self.video_url
+    
+    @property
+    def get_youtube_embed_url(self):
+        """Get proper YouTube embed URL"""
+        if not self.video_url:
+            return None
+            
+        video_id = None
+        try:
+            if "youtube.com/watch?v=" in self.video_url:
+                video_id = self.video_url.split("watch?v=")[1].split("&")[0]
+            elif "youtu.be/" in self.video_url:
+                video_id = self.video_url.split("youtu.be/")[1]
+            elif len(self.video_url) == 11:  # Already video ID
+                video_id = self.video_url
+                
+            if video_id:
+                return f"https://www.youtube.com/embed/{video_id}?rel=0"
+        except:
+            return None
+        return None
+
+    def clean(self):
+        """Clean video URL before saving"""
+        if self.video_url:
+            # Extract video ID if full URL is provided
+            if "youtube.com/watch?v=" in self.video_url:
+                self.video_url = self.video_url.split("watch?v=")[1]
+            elif "youtu.be/" in self.video_url:
+                self.video_url = self.video_url.split("youtu.be/")[1]
+
     def __str__(self):
         return f"{self.course.title} - {self.title}"
 

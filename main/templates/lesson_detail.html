@@ -6,14 +6,17 @@
   
   <!-- YouTube videoni iframe orqali ko'rsatish -->
   {% if lesson.video_url %}
-    <div class="embed-responsive embed-responsive-16by9">
+  <div class="ratio ratio-16x9 mb-3 rounded-3 overflow-hidden">
       <iframe 
-        class="embed-responsive-item" 
-        src="{{ lesson.video_url }}" 
-        frameborder="0" 
-        allowfullscreen>
+          src="{{ video_url }}"
+          title="{{ lesson.title }}"
+          class="embed-responsive-item"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy">
       </iframe>
-    </div>
+  </div>
   {% else %}
     <p>🚫 Video mavjud emas.</p>
   {% endif %}
@@ -22,4 +25,23 @@
     {{ lesson.description|linebreaks }}
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const iframes = document.querySelectorAll('iframe[src*="youtube.com"]');
+    
+    iframes.forEach(iframe => {
+        iframe.addEventListener('error', function() {
+            const container = this.closest('.ratio');
+            container.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center h-100 bg-light rounded">
+                    <div class="text-center">
+                        <i class="bi bi-exclamation-triangle text-warning display-4"></i>
+                        <p class="mt-2 mb-0">Video yuklanishda xatolik yuz berdi</p>
+                    </div>
+                </div>
+            `;
+        });
+    });
+});
+</script>
 {% endblock %}

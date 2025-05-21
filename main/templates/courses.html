@@ -1,452 +1,377 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<div class="courses-container">
-    <h2 class="courses-header"> Premium Kurslarimiz</h2>
-    
-    <div class="glass-carousel-container">
-        <div class="glass-carousel">
-            {% for course in courses %}
-            <div class="glass-carousel-item">
-                <div class="glass-card">
-                    <div class="glass-card-header">
-                        <span class="course-badge">{{ forloop.counter }}</span>
-                        <a href="{% url 'course_detail' course.id %}" class="glass-image-container">
-                            <img src="{{ course.image.url }}" class="glass-image" alt="{{ course.title }}">
-                            <div class="glass-overlay"></div>
-                        </a>
+<!-- Hero Section -->
+<section class="courses-hero py-5">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill mb-3">Kurslar</span>
+                <h1 class="display-4 fw-bold mb-4">Premium Trading Kurslari</h1>
+                <p class="lead text-muted mb-0">Professional treydingni o'rganishni xoxlaysizmi?<br>Bizning premium kurslarimiz sizga yordam beradi.</p>
+                <div class="hero-shape">
+                    <div class="shape-1"></div>
+                    <div class="shape-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Courses Grid Section -->
+<section class="courses-grid py-5">
+    <div class="container">
+        <!-- Filter & Search -->
+        <div class="courses-toolbar mb-4">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-6">
+                    <div class="courses-search">
+                        <i class="bi bi-search"></i>
+                        <input type="search" class="form-control" placeholder="Kurslarni qidirish...">
                     </div>
-                    <div class="glass-card-body">
-                        <h3 class="course-title">
-                            <a href="{% url 'course_detail' course.id %}">{{ course.title }}</a>
+                </div>
+                <div class="col-md-6 d-flex justify-content-md-end">
+                    <div class="courses-filter d-flex gap-2">
+                        <select class="form-select">
+                            <option value="">Barcha darajalar</option>
+                            <option value="beginner">Boshlang'ich</option>
+                            <option value="intermediate">O'rta</option>
+                            <option value="advanced">Professional</option>
+                        </select>
+                        <select class="form-select">
+                            <option value="">Saralash</option>
+                            <option value="price-asc">Narx: Arzondan</option>
+                            <option value="price-desc">Narx: Qimmatdan</option>
+                            <option value="popular">Mashhur</option>
+                            <option value="newest">Yangi</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courses Cards -->
+        <div class="row g-4">
+            {% for course in courses %}
+            <div class="col-md-6 col-lg-4">
+                <div class="course-card h-100">
+                    <!-- Card Media -->
+                    <div class="course-card-media position-relative">
+                        <img src="{{ course.image.url }}" 
+                             alt="{{ course.title }}"
+                             class="img-fluid w-100">
+                        <div class="course-card-overlay">
+                            <div class="overlay-content">
+                                <span class="badge bg-light text-dark mb-2">
+                                    <i class="bi bi-clock-fill me-1"></i>{{ course.duration }}
+                                </span>
+                                <span class="badge bg-light text-dark">
+                                    <i class="bi bi-people-fill me-1"></i>{{ course.students.count }} o'quvchi
+                                </span>
+                            </div>
+                        </div>
+                        <div class="course-card-play">
+                            <button type="button" class="btn btn-light rounded-circle shadow-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#previewModal{{ course.id }}">
+                                <i class="bi bi-play-fill fs-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="course-card-body p-4">
+                        <!-- Level & Category -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge bg-primary-soft text-primary px-3 py-2">
+                                {{ course.level }}
+                            </span>
+                            <span class="course-price h5 mb-0">${{ course.price }}</span>
+                        </div>
+
+                        <!-- Title & Description -->
+                        <h3 class="course-title mb-3">
+                            <a href="{% url 'course_detail' course.id %}" class="text-decoration-none text-dark">
+                                {{ course.title }}
+                            </a>
                         </h3>
-                        <p class="course-description">{{ course.description|truncatewords:15 }}</p>
-                        
-                        <div class="course-meta">
-                            <span class="course-price">${{ course.price }} </span>
-                            <form method="POST" action="{% url 'enroll_course' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="course_id" value="{{ course.id }}">
-                                <button type="submit" class="enroll-btn">
-                                    <span>Yozilish</span>
-                                    <svg viewBox="0 0 13 10" height="10px" width="15px">
-                                        <path d="M1,5 L11,5"></path>
-                                        <polyline points="8 1 12 5 8 9"></polyline>
-                                    </svg>
-                                </button>
-                            </form>
+                        <p class="course-description text-muted mb-4">
+                            {{ course.description|truncatewords:15 }}
+                        </p>
+
+                        <!-- Mentor Info -->
+                        <div class="course-mentor d-flex align-items-center mt-auto">
+                            <img src="{{ course.mentor.image.url }}" 
+                                 alt="{{ course.mentor.full_name }}"
+                                 class="rounded-circle"
+                                 width="48" height="48">
+                            <div class="ms-3">
+                                <p class="mb-0 small text-muted">O'qituvchi</p>
+                                <h6 class="mb-0 fw-bold">{{ course.mentor.full_name }}</h6>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="course-actions mt-4">
+                            <div class="d-grid gap-2">
+                                {% if user.is_authenticated %}
+                                    {% if course in user.enrolled_courses.all %}
+                                        <a href="{% url 'lesson_list' course.id %}" 
+                                           class="btn btn-primary">
+                                            <i class="bi bi-play-circle me-2"></i>Davom etish
+                                        </a>
+                                    {% else %}
+                                        <form method="POST" action="{% url 'enroll_course' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="course_id" value="{{ course.id }}">
+                                            <button type="submit" class="btn btn-primary w-100">
+                                                <i class="bi bi-cart-plus me-2"></i>Kursga yozilish
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="btn btn-primary">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i>Kirish
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Course Preview Modal -->
+            <div class="modal fade" id="previewModal{{ course.id }}" tabindex="-1">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body p-0">
+                            <button type="button" class="btn-close position-absolute end-0 top-0 m-3" 
+                                    data-bs-dismiss="modal"></button>
+                            <div class="ratio ratio-16x9">
+                                <iframe src="{{ course.preview_image_url }}" 
+                                        title="{{ course.title }}"
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-journal-x display-1 text-muted mb-4"></i>
+                <h4>Hozircha kurslar mavjud emas</h4>
+                <p class="text-muted">Tez orada yangi kurslar qo'shiladi</p>
+            </div>
             {% endfor %}
         </div>
-        
-        <button class="carousel-control prev" aria-label="Previous">
-            <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"></path></svg>
-        </button>
-        <button class="carousel-control next" aria-label="Next">
-            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"></path></svg>
-        </button>
-        
-        <div class="carousel-progress">
-            <div class="progress-bar"></div>
-        </div>
+
+        <!-- Pagination -->
+        {% if courses.has_other_pages %}
+        <nav class="courses-pagination mt-5">
+            <ul class="pagination justify-content-center">
+                {% if courses.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ courses.previous_page_number }}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in courses.paginator.page_range %}
+                    {% if courses.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if courses.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ courses.next_page_number }}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
-</div>
+</section>
 
 <style>
 :root {
-    --primary-color: #4361ee;
-    --secondary-color: #3a0ca3;
-    --text-color: #1b1b2b;
-    --light-text: #ffffff;
-    --glass-blur: 12px;
-    --glass-opacity: 0.25;
-    --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    --primary-rgb: 67, 97, 238;
+    --primary-soft: rgba(var(--primary-rgb), 0.1);
+    --transition: all 0.3s ease;
 }
 
-/* Asosiy konteyner */
-.courses-container {
-    max-width: 1400px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-.courses-header {
-    text-align: center;
-    font-size: 2.5rem;
-    margin-bottom: 3rem;
-    color: var(--text-color);
+/* Hero Section */
+.courses-hero {
+    background: linear-gradient(135deg, var(--primary-soft) 0%, rgba(var(--primary-rgb), 0.05) 100%);
     position: relative;
-    display: inline-block;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0 2rem;
-}
-
-.courses-header::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-}
-
-/* Karusel konteyneri */
-.glass-carousel-container {
-    position: relative;
-    padding: 1rem 0;
-    margin: 0 auto;
-}
-
-.glass-carousel {
-    display: flex;
-    gap: 2rem;
-    padding: 2rem 1rem;
-    scroll-snap-type: x mandatory;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-
-.glass-carousel::-webkit-scrollbar {
-    display: none;
-}
-
-.glass-carousel-item {
-    scroll-snap-align: center;
-    min-width: 320px;
-    width: 350px;
-    flex: 0 0 auto;
-    transition: var(--transition);
-}
-
-/* Glass card dizayni */
-.glass-card {
-    background: rgba(255, 255, 255, var(--glass-opacity));
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border-radius: 20px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
     overflow: hidden;
-    transition: var(--transition);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
 }
 
-.glass-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
-}
-
-.glass-card-header {
-    position: relative;
-    height: 200px;
-}
-
-.course-badge {
+.hero-shape {
     position: absolute;
-    top: 15px;
-    left: 15px;
-    background: var(--primary-color);
-    color: white;
-    width: 30px;
-    height: 30px;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.shape-1, .shape-2 {
+    position: absolute;
+    background: linear-gradient(45deg, var(--primary-soft), rgba(var(--primary-rgb), 0.2));
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    z-index: 2;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.glass-image-container {
-    display: block;
-    height: 100%;
-    width: 100%;
+.shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -150px;
+}
+
+.shape-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: -100px;
+}
+
+/* Course Cards */
+.course-card {
+    background: #fff;
+    border: none;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(var(--primary-rgb), 0.1);
+}
+
+.course-card-media {
+    height: 240px;
     overflow: hidden;
 }
 
-.glass-image {
-    width: 100%;
+.course-card-media img {
     height: 100%;
     object-fit: cover;
     transition: var(--transition);
 }
 
-.glass-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent 70%);
-}
-
-.glass-card-body {
-    padding: 1.5rem;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.course-title {
-    margin: 0 0 1rem 0;
-    font-size: 1.4rem;
-    color: var(--text-color);
-}
-
-.course-title a {
-    color: inherit;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.course-title a:hover {
-    color: var(--primary-color);
-}
-
-.course-description {
-    color: var(--text-color);
-    opacity: 0.8;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
-    flex-grow: 1;
-}
-
-.course-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-}
-
-.course-price {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-.enroll-btn {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: var(--transition);
-    font-weight: 500;
-    overflow: hidden;
-    position: relative;
-}
-
-.enroll-btn svg {
-    width: 18px;
-    height: 18px;
-    stroke: currentColor;
-    stroke-width: 2;
-    fill: none;
-    transition: var(--transition);
-}
-
-.enroll-btn:hover {
-    background: var(--secondary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
-}
-
-.enroll-btn:hover svg {
-    transform: translateX(3px);
-}
-
-/* Karusel navigatsiya */
-.carousel-control {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 50px;
-    height: 50px;
-    background: white;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    z-index: 10;
-    transition: var(--transition);
-    opacity: 0.9;
-}
-
-.carousel-control svg {
-    width: 24px;
-    height: 24px;
-    stroke: var(--primary-color);
-    stroke-width: 2;
-}
-
-.carousel-control:hover {
-    transform: translateY(-50%) scale(1.1);
-    opacity: 1;
-}
-
-.carousel-control.prev {
-    left: -25px;
-}
-
-.carousel-control.next {
-    right: -25px;
-}
-
-/* Progress bar */
-.carousel-progress {
-    width: 100%;
-    height: 4px;
-    background: rgba(0, 0, 0, 0.05);
-    margin-top: 1rem;
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.progress-bar {
-    height: 100%;
-    width: 0;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    border-radius: 2px;
-    transition: width 0.3s ease;
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --text-color: #f8f9fa;
-        --primary-color: #4895ef;
-        --secondary-color: #4361ee;
-    }
-    
-    .glass-card {
-        background: rgba(30, 30, 30, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .course-description {
-        opacity: 0.7;
-    }
-    
-    .carousel-control {
-        background: rgba(30, 30, 30, 0.7);
-    }
-    
-    .carousel-control svg {
-        stroke: white;
-    }
-}
-
-/* JavaScript uchun kerak bo'ladigan klasslar */
-.glass-carousel-item.active {
+.course-card:hover .course-card-media img {
     transform: scale(1.05);
 }
 
-/* Responsive dizayn */
-@media (max-width: 768px) {
-    .glass-carousel-item {
-        min-width: 280px;
-        width: 300px;
-    }
-    
-    .carousel-control {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .carousel-control.prev {
-        left: -15px;
-    }
-    
-    .carousel-control.next {
-        right: -15px;
-    }
+.course-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    opacity: 0;
+    transition: var(--transition);
+    display: flex;
+    align-items: flex-end;
+    padding: 1.5rem;
 }
 
-@media (max-width: 480px) {
-    .courses-header {
-        font-size: 2rem;
+.course-card:hover .course-card-overlay {
+    opacity: 1;
+}
+
+.course-card-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.course-card:hover .course-card-play {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+/* Search & Filter */
+.courses-search {
+    position: relative;
+}
+
+.courses-search i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.courses-search input {
+    padding-left: 2.8rem;
+    border-radius: 50rem;
+}
+
+.courses-filter select {
+    min-width: 140px;
+    border-radius: 50rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .course-card-media {
+        height: 200px;
     }
     
-    .glass-carousel {
-        gap: 1rem;
-        padding: 1rem 0.5rem;
+    .courses-filter {
+        flex-wrap: wrap;
+    }
+    
+    .courses-filter select {
+        width: 100%;
     }
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const carousel = document.querySelector('.glass-carousel');
-    const items = document.querySelectorAll('.glass-carousel-item');
-    const prevBtn = document.querySelector('.carousel-control.prev');
-    const nextBtn = document.querySelector('.carousel-control.next');
-    const progressBar = document.querySelector('.progress-bar');
+    // Search functionality
+    const searchInput = document.querySelector('.courses-search input');
+    const courseCards = document.querySelectorAll('.course-card');
     
-    let currentIndex = 0;
-    const itemWidth = items[0].offsetWidth + 32; // gap bilan birga
-    
-    function updateCarousel() {
-        carousel.scrollTo({
-            left: currentIndex * itemWidth,
-            behavior: 'smooth'
-        });
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
         
-        // Progress bar yangilash
-        progressBar.style.width = `${(currentIndex + 1) / items.length * 100}%`;
-        
-        // Active klassini yangilash
-        items.forEach((item, index) => {
-            item.classList.toggle('active', index === currentIndex);
+        courseCards.forEach(card => {
+            const title = card.querySelector('.course-title').textContent.toLowerCase();
+            const description = card.querySelector('.course-description').textContent.toLowerCase();
+            
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
         });
-    }
-    
-    // Navigatsiya tugmalari
-    prevBtn.addEventListener('click', () => {
-        currentIndex = Math.max(0, currentIndex - 1);
-        updateCarousel();
     });
     
-    nextBtn.addEventListener('click', () => {
-        currentIndex = Math.min(items.length - 1, currentIndex + 1);
-        updateCarousel();
+    // Filter functionality
+    const filterSelects = document.querySelectorAll('.courses-filter select');
+    
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            // Add your filter logic here
+            console.log('Filter changed:', select.value);
+        });
     });
-    
-    // Avtomatik scroll
-    let autoScroll = setInterval(() => {
-        currentIndex = (currentIndex + 1) % items.length;
-        updateCarousel();
-    }, 5000);
-    
-    // Pause on hover
-    carousel.addEventListener('mouseenter', () => {
-        clearInterval(autoScroll);
-    });
-    
-    carousel.addEventListener('mouseleave', () => {
-        autoScroll = setInterval(() => {
-            currentIndex = (currentIndex + 1) % items.length;
-            updateCarousel();
-        }, 5000);
-    });
-    
-    // Dastlabki holatni sozlash
-    updateCarousel();
 });
 </script>
 {% endblock %}

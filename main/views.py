@@ -179,18 +179,25 @@ def lesson_list(request, course_id):
     return render(request, 'lesson_list.html', {'course': course, 'lessons': lessons})
 
 def lesson_detail(request, pk):
-    lesson = Lesson.objects.get(id=pk)
-    course = lesson.course  # Darsning kursini olish
-    # Foydalanuvchining kursni sotib olganligini tekshirish
-    has_access = Order.objects.filter(user=request.user, course=course, is_paid=True).exists()
+    lesson = get_object_or_404(Lesson, id=pk)
+    
+    course = lesson.course
+    has_access = Order.objects.filter(
+        user=request.user, 
+        course=course, 
+        is_paid=True
+    ).exists()
 
-    if not has_access:
-        messages.error(request, "Ushbu darsni ko'rish uchun avval kursni sotib olishingiz kerak.")
+    if not has_access and course.is_paid:
+        messages.error(request, "Bu darsni ko'rish uchun kursni sotib olishingiz kerak")
         return redirect('course_detail', course_id=course.id)
 
-    # YouTube havolasini iframe formatiga moslashtirish
-    lesson.video_url = get_embed_url(lesson.video_url)
-    return render(request, 'lesson_detail.html', {'lesson': lesson})
+    context = {
+        'lesson': lesson,
+        'course': course,
+        'video_url': lesson.get_youtube_embed_url(),
+    }
+    return render(request, 'lesson_detail.html', context)
 
 
 @login_required
