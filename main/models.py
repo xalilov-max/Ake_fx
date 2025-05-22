@@ -179,8 +179,14 @@ class Order(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(users, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='profile/', blank=True, null=True)
-    bio = models.TextField(blank=True, null=True)
-
+    image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    bio = models.TextField(max_length=500, blank=True)
+    
     def __str__(self):
-        return self.user.username
+        return f"{self.user.username}'s profile"
+    
+    def delete(self, *args, **kwargs):
+        # Delete image file when profile is deleted
+        if self.image:
+            self.image.delete()
+        super().delete(*args, **kwargs)

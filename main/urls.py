@@ -17,6 +17,8 @@ urlpatterns = [
     path('course/<int:course_id>/buy/', views.course_buy, name='course_buy'),
     path('payment/callback/', views.payment_callback, name='payment_callback'),
     path('profile/', views.profile, name='profile'),
+    path('profile/update/', views.profile_update, name='profile_update'),
+    path('profile/image/update/', views.profile_image_update, name='profile_image_update'),
     path('password_change/', auth_views.PasswordChangeView.as_view(template_name='main/password_change.html'), name='password_change'),
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='main/password_change_done.html'), name='password_change_done'),
     path('lesson/<int:pk>/', views.lesson_detail, name='lesson_detail'),

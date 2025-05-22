@@ -223,4 +223,29 @@
   } else {
     initializeAll();
   }
+  
+  /**
+   * Toggle dark mode manually
+   */
+  function toggleDarkMode() {
+    const body = document.body;
+    const isDarkMode = body.classList.toggle('dark-mode');
+    
+    // Save preference
+    localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+    
+    // Update theme color meta tag
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', isDarkMode ? '#212529' : '#ffffff');
+    }
+  }
+
+  // Check for saved dark mode preference
+  document.addEventListener('DOMContentLoaded', () => {
+    const darkModeSaved = localStorage.getItem('darkMode') === 'enabled';
+    if (darkModeSaved) {
+        document.body.classList.add('dark-mode');
+    }
+  });
 })();

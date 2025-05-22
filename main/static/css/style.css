@@ -42,6 +42,25 @@
   --border-radius-xl: 2rem;
   --border-radius-pill: 50rem;
   --border-radius-circle: 50%;
+  
+  /* Light mode variables */
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #6c757d;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --border-color: #dee2e6;
+}
+
+/* Dark mode variables */
+[data-bs-theme="dark"],
+body.dark-mode {
+    --text-primary: #f8f9fa;
+    --text-secondary: #e9ecef;
+    --text-muted: #adb5bd;
+    --bg-primary: #212529;
+    --bg-secondary: #343a40;
+    --border-color: #495057;
 }
 
 /* Apply smooth scrolling to the entire page */
@@ -61,6 +80,30 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* General dark mode styles */
+body.dark-mode {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Text colors in dark mode */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+    color: var(--text-primary);
+}
+
+body.dark-mode .text-dark {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .text-muted {
+    color: var(--text-muted) !important;
 }
 
 /* Advanced Typography */
@@ -131,6 +174,19 @@ a:hover {
     padding-left: 0 !important;
     padding-right: 0 !important;
     width: 100% !important;
+}
+
+/* Remove container paddings in header */
+.header-section .container {
+    padding-left: 0;
+    padding-right: 0;
+    max-width: 100%;
+}
+
+/* Adjust content spacing */
+.header-content .row {
+    margin: 0;
+    width: 100%;
 }
 
 /* Enhanced Navbar */
@@ -215,25 +271,40 @@ a:hover {
 /* Enhanced Header Section with Modern Video Background */
 .header-section {
   position: relative;
-  width: 100%;
-  height: 90vh;
-  min-height: 600px;
-  margin: 0;
-  padding: 0;
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.header-video {
+video {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -1;
+  object-position: center;
+}
+
+.video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.video-container video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .video-overlay {
@@ -242,13 +313,19 @@ a:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
-  z-index: 0;
+  background: linear-gradient(135deg, 
+      rgba(13, 110, 253, 0.85) 0%, 
+      rgba(111, 66, 193, 0.85) 100%);
+  z-index: 1;
 }
 
 .header-content {
   position: relative;
   z-index: 2;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   color: var(--white);
   padding: 2rem;
@@ -1358,25 +1435,51 @@ body.dark-mode .social-icon {
   background-color: var(--gray-700);
 }
 
-body.dark-mode .text-dark,
-body.dark-mode .card-title,
-body.dark-mode .card-title a {
-    color: var(--white) !important;
+/* Additional dark mode styles */
+/* Buttons */
+body.dark-mode .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
 }
-body.dark-mode .text-muted,
-body.dark-mode .card-text,
-body.dark-mode .section-header p,
-body.dark-mode .small {
-    color: var(--gray-400) !important;
+
+/* Input fields */
+body.dark-mode .form-control {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
 }
-body.dark-mode .bg-light,
-body.dark-mode .bg-white,
-body.dark-mode .card-footer.bg-white {
-    background-color: var(--gray-800) !important;
-    color: var(--gray-300) !important;
+
+/* Dropdown menus */
+body.dark-mode .dropdown-menu {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
 }
-body.dark-mode .border-light {
-    border-color: var(--gray-700) !important;
+
+body.dark-mode .dropdown-item {
+    color: var(--text-primary);
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: var(--bg-primary);
+}
+
+/* Modals */
+body.dark-mode .modal-content {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Badges */
+body.dark-mode .badge.bg-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Cards hover effects */
+body.dark-mode .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
 }
 
 /* Additional modern touch - custom scrollbar */
@@ -1461,4 +1564,25 @@ img.loaded {
     padding: 2rem;
     text-align: center;
     border-radius: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-aspect-ratio: 16/9) {
+    .video-container video {
+        width: auto;
+        height: 100%;
+    }
+}
+
+@media (min-aspect-ratio: 16/9) {
+    .video-container video {
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-section {
+        height: calc(100vh - 80px); /* Navbar height adjustment */
+    }
 }

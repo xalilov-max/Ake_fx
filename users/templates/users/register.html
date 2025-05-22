@@ -1,12 +1,235 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Ro'yxatdan o'tish</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Ro'yxatdan o'tish</button>
-    </form>
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Title -->
+            <h1 class="auth-title">Ro'yxatdan o'tish</h1>
+            <p class="auth-subtitle mb-4">Ake.fx platformasiga a'zo bo'ling</p>
+
+            <!-- Form -->
+            <form method="post" class="auth-form needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <!-- Username field -->
+                <div class="form-floating mb-3">
+                    <input type="text" name="{{ form.username.name }}" 
+                           class="form-control" id="username" 
+                           placeholder="Username" required>
+                    <label for="username">
+                        <i class="bi bi-person me-1"></i>Username
+                    </label>
+                    <div class="invalid-feedback">
+                        Iltimos, usernameni kiriting
+                    </div>
+                </div>
+
+                <!-- Email field -->
+                <div class="form-floating mb-3">
+                    <input type="email" name="{{ form.email.name }}" 
+                           class="form-control" id="email" 
+                           placeholder="Email" required>
+                    <label for="email">
+                        <i class="bi bi-envelope me-1"></i>Email
+                    </label>
+                    <div class="invalid-feedback">
+                        Iltimos, email manzilingizni kiriting
+                    </div>
+                </div>
+
+                <!-- Password field -->
+                <div class="form-floating mb-3">
+                    <input type="password" name="{{ form.password1.name }}" 
+                           class="form-control" id="password1" 
+                           placeholder="Password" required>
+                    <label for="password1">
+                        <i class="bi bi-lock me-1"></i>Parol
+                    </label>
+                    <button type="button" class="btn btn-link password-toggle" 
+                            onclick="togglePassword('password1')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <div class="password-strength mt-1"></div>
+                </div>
+
+                <!-- Confirm Password field -->
+                <div class="form-floating mb-4">
+                    <input type="password" name="{{ form.password2.name }}" 
+                           class="form-control" id="password2" 
+                           placeholder="Confirm Password" required>
+                    <label for="password2">
+                        <i class="bi bi-lock-fill me-1"></i>Parolni tasdiqlang
+                    </label>
+                    <button type="button" class="btn btn-link password-toggle" 
+                            onclick="togglePassword('password2')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+
+                <!-- Terms checkbox -->
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        Men <a href="#" class="text-primary">foydalanish shartlari</a> bilan tanishdim
+                    </label>
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    Ro'yxatdan o'tish
+                </button>
+
+                <!-- Login link -->
+                <p class="text-center mb-0">
+                    Akkauntingiz bormi? 
+                    <a href="{% url 'login' %}" class="text-primary">Tizimga kiring</a>
+                </p>
+            </form>
+        </div>
+    </div>
 </div>
+
+<style>
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0d6efd20 0%, #6610f220 100%);
+    padding: 2rem;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+.auth-logo {
+    height: 60px;
+    width: auto;
+    margin-bottom: 1rem;
+}
+
+.auth-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    color: #6c757d;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.form-floating {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    color: #6c757d;
+}
+
+.password-strength {
+    height: 4px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    padding: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.2);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('.auth-form');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        } else {
+            const button = form.querySelector('button[type="submit"]');
+            const spinner = button.querySelector('.spinner-border');
+            button.disabled = true;
+            spinner.classList.remove('d-none');
+        }
+        
+        form.classList.add('was-validated');
+    });
+
+    // Password strength checker
+    const password = document.getElementById('password1');
+    const strengthIndicator = document.querySelector('.password-strength');
+    
+    password.addEventListener('input', function() {
+        const strength = checkPasswordStrength(this.value);
+        updateStrengthIndicator(strength);
+    });
+});
+
+// Password visibility toggle
+function togglePassword(id) {
+    const passwordInput = document.getElementById(id);
+    const toggleBtn = passwordInput.nextElementSibling.querySelector('i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+
+// Check password strength
+function checkPasswordStrength(password) {
+    let strength = 0;
+    
+    if (password.length >= 8) strength++;
+    if (password.match(/[a-z]/)) strength++;
+    if (password.match(/[A-Z]/)) strength++;
+    if (password.match(/[0-9]/)) strength++;
+    if (password.match(/[^a-zA-Z0-9]/)) strength++;
+    
+    return strength;
+}
+
+// Update strength indicator
+function updateStrengthIndicator(strength) {
+    const strengthIndicator = document.querySelector('.password-strength');
+    const colors = ['#dc3545', '#ffc107', '#0dcaf0', '#198754', '#0d6efd'];
+    const widths = ['20%', '40%', '60%', '80%', '100%'];
+    
+    strengthIndicator.style.width = widths[strength - 1];
+    strengthIndicator.style.backgroundColor = colors[strength - 1];
+}
+</script>
 {% endblock %}

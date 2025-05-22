@@ -1,112 +1,466 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow-lg border-0 mb-5">
-        <div class="card-header bg-dark text-white text-center py-3">
-            <h2 class="mb-0"><i class="fas fa-chart-line me-2"></i>📊 Admin Dashboard</h2>
+<div class="admin-dashboard">
+    <!-- Sidebar -->
+    <nav class="dashboard-sidebar">
+        <div class="sidebar-header p-4">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="sidebar-logo">
         </div>
-        <div class="card-body p-4">
-            <!-- Statistika kartalari -->
-            <div class="row g-4 text-center mb-5">
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
-                        <div class="card-body bg-primary bg-gradient text-white rounded py-4">
-                            <i class="fas fa-users mb-3 fa-2x"></i>
-                            <h5 class="card-title fw-bold">Umumiy Foydalanuvchilar</h5>
-                            <p class="display-4 mb-0 fw-bold">{{ total_users }}</p>
+        <ul class="sidebar-nav">
+            <li class="active">
+                <a href="#overview"><i class="fas fa-home"></i>Asosiy Panel</a>
+            </li>
+            <li>
+                <a href="{% url 'admin:main_course_changelist' %}">
+                    <i class="fas fa-graduation-cap"></i>Kurslar
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin:auth_user_changelist' %}">
+                    <i class="fas fa-users"></i>Foydalanuvchilar
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin:main_mentor_changelist' %}">
+                    <i class="fas fa-chalkboard-teacher"></i>Mentorlar
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin:main_order_changelist' %}">
+                    <i class="fas fa-shopping-cart"></i>Buyurtmalar
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Top Navigation -->
+        <div class="dashboard-nav p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">Admin Boshqaruv Paneli</h1>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn btn-light" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            {% if notifications_count %}
+                                <span class="badge bg-danger">{{ notifications_count }}</span>
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% for notification in recent_notifications %}
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <small class="text-muted">{{ notification.created_at|timesince }} oldin</small>
+                                        <p class="mb-0">{{ notification.message }}</p>
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li><span class="dropdown-item">Yangi xabarlar yo'q</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-primary" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> Admin
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'admin:index' %}">
+                                    <i class="fas fa-cog me-2"></i>Admin Panel
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" class="dropdown-item">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-danger p-0">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Chiqish
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="dashboard-content p-4">
+            <!-- Quick Stats -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card bg-primary text-white">
+                        <div class="stat-card-inner">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ total_users }}</h3>
+                                <p>Foydalanuvchilar</p>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <small>Bugun: +{{ today_users }}</small>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
-                        <div class="card-body bg-success bg-gradient text-white rounded py-4">
-                            <i class="fas fa-book-open mb-3 fa-2x"></i>
-                            <h5 class="card-title fw-bold">Kurslar</h5>
-                            <p class="display-4 mb-0 fw-bold">{{ total_courses }}</p>
+                <div class="col-md-3">
+                    <div class="stat-card bg-success text-white">
+                        <div class="stat-card-inner">
+                            <div class="stat-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ total_courses }}</h3>
+                                <p>Kurslar</p>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <small>Faol: {{ active_courses }}</small>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
-                        <div class="card-body bg-warning bg-gradient text-white rounded py-4">
-                            <i class="fas fa-shopping-cart mb-3 fa-2x"></i>
-                            <h5 class="card-title fw-bold">Sotilgan Kurslar</h5>
-                            <p class="display-4 mb-0 fw-bold">{{ total_orders }}</p>
+                <div class="col-md-3">
+                    <div class="stat-card bg-info text-white">
+                        <div class="stat-card-inner">
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>${{ total_earnings }}</h3>
+                                <p>Umumiy Daromad</p>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <small>Bu oy: ${{ monthly_earnings }}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-warning text-white">
+                        <div class="stat-card-inner">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ total_orders }}</h3>
+                                <p>Buyurtmalar</p>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <small>Kutilmoqda: {{ pending_orders }}</small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row">
-                <!-- Top 5 mentorlar -->
-                <div class="col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-info bg-gradient text-white py-3">
-                            <h4 class="mb-0 text-center"><i class="fas fa-trophy me-2"></i>🏆 Top 5 Mentorlar</h4>
-                        </div>
-                        <div class="card-body p-0">
-                            <ul class="list-group list-group-flush">
-                                {% for mentor in top_mentors %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4 border-start-0 border-end-0">
-                                    <div>
-                                        <i class="fas fa-user-tie text-primary me-2"></i>
-                                        {{ mentor.full_name }}
-                                    </div>
-                                    <span class="badge bg-primary rounded-pill px-3 py-2">{{ mentor.course_count }} kurs</span>
-                                </li>
-                                {% empty %}
-                                <li class="list-group-item text-center py-4">
-                                    <i class="fas fa-exclamation-circle text-muted me-2"></i>
-                                    🚫 Hozircha mentorlar mavjud emas.
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Foydalanuvchi va kurs o'sishi grafigi -->
-                <div class="col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-success bg-gradient text-white py-3">
-                            <h4 class="mb-0 text-center"><i class="fas fa-chart-line me-2"></i>📈 Foydalanuvchi va Kurs O'sishi</h4>
+            <!-- Charts Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="card-title mb-0">Daromad Statistikasi</h5>
                         </div>
                         <div class="card-body">
-                            <canvas id="growthChart" width="400" height="250"></canvas>
+                            <canvas id="earningsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="card-title mb-0">Kurs Kategoriyalari</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="categoriesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities & Top Items -->
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">So'nggi Faoliyatlar</h5>
+                            <a href="#" class="btn btn-sm btn-primary">Barchasi</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="activity-timeline p-4">
+                                {% for activity in recent_activities %}
+                                <div class="activity-item">
+                                    <div class="activity-icon bg-{{ activity.type }}-soft">
+                                        <i class="fas fa-{{ activity.icon }}"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p class="mb-0">{{ activity.message }}</p>
+                                        <small class="text-muted">{{ activity.time|timesince }} oldin</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="card-title mb-0">Top Kurslar</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                {% for course in top_courses %}
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ course.image.url }}" 
+                                             alt="{{ course.title }}" 
+                                             class="rounded me-3"
+                                             width="48" height="48">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">{{ course.title }}</h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-users me-1"></i>{{ course.students_count }} o'quvchi
+                                            </small>
+                                        </div>
+                                        <div class="text-end">
+                                            <h6 class="mb-0">${{ course.price }}</h6>
+                                            <small class="text-success">
+                                                <i class="fas fa-chart-line me-1"></i>+{{ course.growth }}%
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
+<style>
+/* Admin Dashboard Styles */
+.admin-dashboard {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+/* Sidebar Styles */
+.dashboard-sidebar {
+    width: 280px;
+    background: #fff;
+    border-right: 1px solid rgba(0,0,0,0.1);
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.sidebar-logo {
+    height: 40px;
+    width: auto;
+}
+
+.sidebar-nav {
+    padding: 1rem 0;
+    list-style: none;
+    margin: 0;
+}
+
+.sidebar-nav li a {
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.sidebar-nav li a i {
+    margin-right: 0.75rem;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-nav li.active a,
+.sidebar-nav li a:hover {
+    color: var(--bs-primary);
+    background: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+/* Main Content Styles */
+.dashboard-main {
+    flex: 1;
+    margin-left: 280px;
+}
+
+.dashboard-nav {
+    background: #fff;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Stat Cards */
+.stat-card {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.stat-card-inner {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    margin-right: 1rem;
+}
+
+.stat-icon i {
+    font-size: 1.5rem;
+}
+
+.stat-info h3 {
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.stat-info p {
+    margin: 0;
+    opacity: 0.8;
+}
+
+.stat-footer {
+    padding: 0.75rem 1.5rem;
+    background: rgba(0,0,0,0.1);
+}
+
+/* Activity Timeline */
+.activity-timeline {
+    position: relative;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem 0;
+    position: relative;
+}
+
+.activity-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 48px;
+    bottom: 0;
+    width: 2px;
+    background: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .dashboard-sidebar {
+        transform: translateX(-100%);
+        z-index: 1000;
+    }
+
+    .dashboard-main {
+        margin-left: 0;
+    }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Existing chart code remains untouched
 document.addEventListener('DOMContentLoaded', function() {
-    // Add hover effects
-    const cards = document.querySelectorAll('.hover-shadow');
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
-        });
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
+    // Earnings Chart
+    const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+    new Chart(earningsCtx, {
+        type: 'line',
+        data: {
+            labels: JSON.parse('{{ earnings_labels|safe }}'),
+            datasets: [{
+                label: 'Daromad',
+                data: JSON.parse('{{ earnings_data|safe }}'),
+                borderColor: '#0d6efd',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(13, 110, 253, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Categories Chart
+    const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+    new Chart(categoriesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: JSON.parse('{{ category_labels|safe }}'),
+            datasets: [{
+                data: JSON.parse('{{ category_data|safe }}'),
+                backgroundColor: [
+                    '#0d6efd',
+                    '#198754',
+                    '#dc3545',
+                    '#ffc107',
+                    '#0dcaf0'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
     });
 });
 </script>
-
-<style>
-.hover-shadow {
-    transition: all 0.3s ease;
-}
-.hover-shadow:hover {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-}
-.transition-all {
-    transition: all 0.3s ease;
-}
-</style>
 {% endblock %}

@@ -210,6 +210,45 @@ def profile(request):
         messages.warning(request, "Admin foydalanuchilar uchun profil mavjud emas.")
         return redirect('admin:index')  # Admin panelga qaytarish
 
+@login_required
+def profile_update(request):
+    if request.method == 'POST':
+        user = request.user
+        profile = Profile.objects.get_or_create(user=user)[0]
+
+        # Update user info
+        user.first_name = request.POST.get('first_name', '')
+        user.last_name = request.POST.get('last_name', '')
+        user.email = request.POST.get('email', '')
+        user.save()
+
+        # Update profile info
+        profile.bio = request.POST.get('bio', '')
+        profile.save()
+
+        messages.success(request, 'Profil muvaffaqiyatli yangilandi')
+        return redirect('profile')
+
+    return redirect('profile')
+
+@login_required
+def profile_image_update(request):
+    if request.method == 'POST' and request.FILES.get('image'):
+        profile = Profile.objects.get_or_create(user=request.user)[0]
+        
+        # Delete old image if exists
+        if profile.image:
+            profile.image.delete()
+        
+        profile.image = request.FILES['image']
+        profile.save()
+        
+        messages.success(request, 'Profil rasmi muvaffaqiyatli yangilandi')
+        return redirect('profile')
+    
+    messages.error(request, 'Rasm yuklashda xatolik yuz berdi')
+    return redirect('profile')
+
 def get_embed_url(video_url):
     if "youtube.com/watch?v=" in video_url:
         return video_url.replace("watch?v=", "embed/")
