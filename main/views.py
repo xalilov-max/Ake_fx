@@ -168,35 +168,52 @@ def payment_callback(request):
 @login_required
 def lesson_list(request, course_id):
     course = get_object_or_404(Course, id=course_id)
-    # Foydalanuvchining kursni sotib olganligini tekshirish
-    has_access = Order.objects.filter(user=request.user, course=course, is_paid=True).exists()
-
-    if not has_access:
-        messages.error(request, "Ushbu kursning darslarini ko'rish uchun avval kursni sotib olishingiz kerak.")
-        return redirect('course_detail', course_id=course.id)
-
-    lessons = Lesson.objects.filter(course=course)
-    return render(request, 'lesson_list.html', {'course': course, 'lessons': lessons})
-
-def lesson_detail(request, pk):
-    lesson = get_object_or_404(Lesson, id=pk)
+    lessons = course.lessons.all().order_by('order')
+    completed_lessons = CompletedLesson.objects.filter(
+        user=request.user,
+        lesson__course=course
+    )
     
-    course = lesson.course
+    context = {
+        'course': course,
+        'lessons': lessons,
+        'completed_lessons': completed_lessons,
+    }
+    
+    return render(request, 'lesson_list.html', context)
+
+def lesson_detail(request, course_id, lesson_id):
+    course = get_object_or_404(Course, id=course_id)
+    lesson = get_object_or_404(Lesson, id=lesson_id, course=course)
+    
+    # Kursni sotib olganlik tekshiruvi
     has_access = Order.objects.filter(
         user=request.user, 
-        course=course, 
+        course=course,
         is_paid=True
     ).exists()
-
+    
     if not has_access and course.is_paid:
         messages.error(request, "Bu darsni ko'rish uchun kursni sotib olishingiz kerak")
         return redirect('course_detail', course_id=course.id)
-
+    
+    # Barcha darslar ro'yxati
+    lessons = course.lessons.all().order_by('id')
+    
+    # Tugatilgan darslar
+    completed_lessons = CompletedLesson.objects.filter(
+        user=request.user,
+        lesson__course=course
+    ).values_list('lesson_id', flat=True)
+    
     context = {
-        'lesson': lesson,
         'course': course,
-        'video_url': lesson.get_youtube_embed_url(),
+        'current_lesson': lesson,
+        'lessons': lessons,
+        'completed_lessons': completed_lessons,
+        'video_url': lesson.get_youtube_embed_url()
     }
+    
     return render(request, 'lesson_detail.html', context)
 
 

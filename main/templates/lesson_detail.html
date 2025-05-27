@@ -1,46 +1,120 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>{{ lesson.title }}</h2>
-  
-  <!-- YouTube videoni iframe orqali ko'rsatish -->
-  {% if lesson.video_url %}
-  <div class="ratio ratio-16x9 mb-3 rounded-3 overflow-hidden">
-      <iframe 
-          src="{{ video_url }}"
-          title="{{ lesson.title }}"
-          class="embed-responsive-item"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-          loading="lazy">
-      </iframe>
-  </div>
-  {% else %}
-    <p>🚫 Video mavjud emas.</p>
-  {% endif %}
-  
-  <div class="mt-3">
-    {{ lesson.description|linebreaks }}
-  </div>
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const iframes = document.querySelectorAll('iframe[src*="youtube.com"]');
-    
-    iframes.forEach(iframe => {
-        iframe.addEventListener('error', function() {
-            const container = this.closest('.ratio');
-            container.innerHTML = `
-                <div class="d-flex align-items-center justify-content-center h-100 bg-light rounded">
-                    <div class="text-center">
-                        <i class="bi bi-exclamation-triangle text-warning display-4"></i>
-                        <p class="mt-2 mb-0">Video yuklanishda xatolik yuz berdi</p>
+<div class="container py-5">
+    <div class="row">
+        <!-- Video Player Column -->
+        <div class="col-lg-8">
+            <!-- Video Player -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-0">
+                    <div class="ratio ratio-16x9">
+                        <iframe 
+                            id="video-player"
+                            src="{{ current_lesson.get_youtube_embed_url }}"
+                            title="{{ current_lesson.title }}"
+                            class="rounded-4"
+                            allowfullscreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                        </iframe>
                     </div>
                 </div>
-            `;
-        });
+            </div>
+
+            <!-- Lesson Info -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">{{ current_lesson.title }}</h3>
+                    <p class="text-muted mb-0">{{ current_lesson.description }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lessons List Column -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white p-4 border-0">
+                    <h5 class="fw-bold mb-0">Darslar ro'yxati</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for lesson in lessons %}
+                        <a href="{% url 'lesson_detail' course.id lesson.id %}" 
+                           class="list-group-item list-group-item-action {% if lesson.id == current_lesson.id %}active{% endif %}">
+                            <div class="d-flex align-items-center">
+                                <div class="lesson-number me-3">
+                                    {{ forloop.counter }}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ lesson.title }}</h6>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>{{ lesson.duration }}
+                                    </small>
+                                </div>
+                                {% if lesson.id in completed_lessons %}
+                                <div class="ms-3">
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.lesson-number {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    border-radius: 50%;
+    font-weight: 500;
+}
+
+.list-group-item.active .lesson-number {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.ratio iframe {
+    border: 0;
+}
+
+/* Error state styles */
+.video-error {
+    height: 100%;
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const videoPlayer = document.getElementById('video-player');
+
+    // Video xatoliklarni qayta ishlash
+    videoPlayer.addEventListener('error', function() {
+        const container = videoPlayer.parentElement;
+        container.innerHTML = `
+            <div class="video-error">
+                <div class="text-center">
+                    <i class="bi bi-exclamation-triangle display-4 text-warning mb-3"></i>
+                    <h5>Video yuklanishda xatolik yuz berdi</h5>
+                    <p class="mb-0">Iltimos, qayta urinib ko'ring</p>
+                </div>
+            </div>
+        `;
     });
 });
 </script>

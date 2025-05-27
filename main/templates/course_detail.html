@@ -169,6 +169,18 @@
     </div>
 </div>
 
+<!-- Video Player Section -->
+<div class="video-player-section mb-4">
+    <div class="ratio ratio-16x9">
+        <iframe id="videoPlayer"
+                src="{{ current_lesson.get_youtube_embed_url }}?autoplay=0&rel=0&showinfo=0&controls=1"
+                class="rounded-4 shadow-sm"
+                allowfullscreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+        </iframe>
+    </div>
+</div>
+
 <style>
 /* Course page specific styles */
 .course-hero {
@@ -223,6 +235,74 @@
     border-radius: 0.5rem;
     padding: 2rem;
     text-align: center;
+}
+
+/* Video Player Styles */
+.video-player-section {
+    background: var(--bs-dark);
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.video-error {
+    height: 100%;
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    color: var(--bs-dark);
+}
+
+/* Video List Styles */
+.lesson-button {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    color: var(--bs-dark);
+    transition: all 0.3s ease;
+}
+
+.lesson-button:hover {
+    background: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.lesson-button.active {
+    background: var(--bs-primary);
+    color: white;
+}
+
+.lesson-number {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    margin-right: 1rem;
+}
+
+.lesson-button.active .lesson-number {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Progress Indicator */
+.progress-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--bs-gray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
+
+.progress-circle.completed {
+    border-color: var(--bs-success);
+    background: var(--bs-success);
+    color: white;
 }
 </style>
 
@@ -283,6 +363,29 @@ function handleVideoError(iframe) {
 
 document.querySelectorAll('iframe[src*="youtube.com"]').forEach(iframe => {
     handleVideoError(iframe);
+});
+
+// Video Player bilan ishlash
+document.addEventListener('DOMContentLoaded', function() {
+    const player = document.getElementById('videoPlayer');
+    const lessonButtons = document.querySelectorAll('.lesson-button');
+
+    lessonButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const videoUrl = this.dataset.videoUrl;
+            
+            // Video URL ni yangilash
+            player.src = videoUrl + "?autoplay=1&rel=0&showinfo=0&controls=1";
+            
+            // Active lesson ni belgilash
+            lessonButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Scroll to video player
+            player.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
 });
 </script>
 {% endblock %}

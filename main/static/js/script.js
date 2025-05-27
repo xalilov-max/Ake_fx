@@ -120,87 +120,48 @@
    * Uses both localStorage and system preference
    */
   function initializeDarkMode() {
-    const toggleButton = document.querySelector(SELECTORS.DARK_MODE_TOGGLE);
-    
-    if (!toggleButton) {
-      console.error("ake.fx: Dark mode toggle button not found");
-      return;
-    }
-    
-    const body = document.body;
-    const icon = toggleButton.querySelector('i');
-    
-    if (!icon) {
-      console.error("ake.fx: Icon element not found inside toggle button");
-      return;
-    }
-    
-    // Check for saved preference or system preference
-    const savedDarkMode = localStorage.getItem(STORAGE_KEYS.DARK_MODE);
+    const darkMode = localStorage.getItem('darkMode') === 'enabled';
     const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    // Apply initial mode
-    if (savedDarkMode === DARK_MODE_VALUES.ENABLED || 
-        (savedDarkMode === null && prefersDarkMode)) {
-      applyDarkMode(body, icon, true);
-    } else {
-      applyDarkMode(body, icon, false);
+    // Apply initial theme
+    if (darkMode || prefersDarkMode) {
+        enableDarkMode();
     }
     
-    // Toggle dark mode on button click
-    toggleButton.addEventListener('click', () => {
-      const isDarkModeActive = body.classList.contains(CLASSES.DARK_MODE);
-      applyDarkMode(body, icon, !isDarkModeActive);
-      
-      // Save preference to localStorage
-      localStorage.setItem(
-        STORAGE_KEYS.DARK_MODE, 
-        !isDarkModeActive ? DARK_MODE_VALUES.ENABLED : DARK_MODE_VALUES.DISABLED
-      );
-    });
-    
-    // Listen for system preference changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      // Only apply if user hasn't set a preference
-      if (localStorage.getItem(STORAGE_KEYS.DARK_MODE) === null) {
-        applyDarkMode(body, icon, e.matches);
-      }
-    });
-    
-    console.log("ake.fx: Dark mode functionality initialized");
-  }
-  
-  /**
-   * Apply dark mode or light mode
-   * @param {HTMLElement} body - The document body element
-   * @param {HTMLElement} icon - The toggle button icon element
-   * @param {boolean} isDarkMode - Whether to apply dark mode
-   */
-  function applyDarkMode(body, icon, isDarkMode) {
-    if (isDarkMode) {
-      body.classList.add(CLASSES.DARK_MODE);
-      updateDarkModeIcon(icon, true);
-    } else {
-      body.classList.remove(CLASSES.DARK_MODE);
-      updateDarkModeIcon(icon, false);
+    // Theme toggle button
+    const themeToggle = document.getElementById('toggle-dark-mode');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            if (document.body.classList.contains('dark-mode')) {
+                disableDarkMode();
+            } else {
+                enableDarkMode();
+            }
+        });
     }
-  }
-  
-  /**
-   * Update dark mode toggle button icon
-   * @param {HTMLElement} icon - The icon element
-   * @param {boolean} isDarkMode - Current dark mode state
-   */
-  function updateDarkModeIcon(icon, isDarkMode) {
-    if (isDarkMode) {
-      icon.classList.remove(ICONS.MOON);
-      icon.classList.add(ICONS.SUN);
-    } else {
-      icon.classList.remove(ICONS.SUN);
-      icon.classList.add(ICONS.MOON);
+}
+
+  function enableDarkMode() {
+    document.body.classList.add('dark-mode');
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('darkMode', 'enabled');
+    updateThemeIcon(true);
+}
+
+  function disableDarkMode() {
+    document.body.classList.remove('dark-mode');
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('darkMode', 'disabled');
+    updateThemeIcon(false);
+}
+
+  function updateThemeIcon(isDark) {
+    const icon = document.querySelector('#toggle-dark-mode i');
+    if (icon) {
+        icon.className = isDark ? 'bi bi-sun' : 'bi bi-moon-stars';
     }
-  }
-  
+}
+
   /**
    * Initialize all functionality when DOM is ready
    */
