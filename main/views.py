@@ -322,35 +322,39 @@ def admin_dashboard(request):
 
 @login_required
 def add_review(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         course_id = request.POST.get('course')
         rating = request.POST.get('rating')
         comment = request.POST.get('comment')
-        
-        if course_id and rating and comment:
-            try:
-                course = Course.objects.get(id=course_id)
-                # Foydalanuvchi bu kursni sotib olganligini tekshirish
-                if Order.objects.filter(user=request.user, course=course, is_paid=True).exists():
-                    # Oldin sharh qoldirmaganligini tekshirish
-                    if not Review.objects.filter(user=request.user, course=course).exists():
-                        Review.objects.create(
-                            user=request.user,
-                            course=course,
-                            rating=rating,
-                            comment=comment
-                        )
-                        messages.success(request, "Sharh muvaffaqiyatli qo'shildi!")
-                    else:
-                        messages.error(request, "Siz bu kurs uchun allaqachon sharh qoldirgansiz")
-                else:
-                    messages.error(request, "Siz bu kursni sotib olmagansiz")
-            except Course.DoesNotExist:
-                messages.error(request, "Kurs topilmadi")
-        else:
-            messages.error(request, "Barcha maydonlarni to'ldiring")
-    
-    return redirect('index')
+
+        # Foydalanuvchining student obyektini olish
+        try:
+            student = Student.objects.get(email=request.user.email)
+        except Student.DoesNotExist:
+            messages.error(request, "Siz student sifatida ro'yxatdan o'tmagansiz.")
+            return redirect('index')  # <-- o'zgardi
+
+        course = get_object_or_404(Course, id=course_id)
+
+        # Student kursga yozilganmi?
+        if not CourseEnrollment.objects.filter(user=request.user, course=course).exists():
+            messages.error(request, "Siz bu kursga yozilmagansiz")
+            return redirect('index')  # <-- o'zgardi
+
+        # Bir kursga bir marta sharh
+        if Review.objects.filter(student=student, course=course).exists():
+            messages.error(request, "Siz bu kursga allaqachon sharh qoldirgansiz")
+            return redirect('index')  # <-- o'zgardi
+
+        Review.objects.create(
+            student=student,
+            course=course,
+            rating=int(rating),
+            comment=comment
+        )
+        messages.success(request, "Sharhingiz muvaffaqiyatli qo'shildi")
+        return redirect('index')  # <-- o'zgardi
+    return redirect('index')  # <-- o'zgardi
 
 @login_required
 def delete_review(request, review_id):

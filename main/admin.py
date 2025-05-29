@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Mentor, Course, Order, Student, Contact, CourseEnrollment, Lesson, Profile,Category,Level
+from .models import Mentor, Course, Order, Student, Contact, CourseEnrollment, Lesson, Profile,Category,Level, Review, users
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
@@ -37,6 +37,12 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'bio']
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('student', 'course', 'rating', 'date')
+    search_fields = ('student__full_name', 'course__title', 'comment')
+    list_filter = ('course', 'rating', 'date')
 
 admin.site.register(Category)
 admin.site.register(Level)
