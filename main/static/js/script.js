@@ -163,6 +163,50 @@
 }
 
   /**
+   * Initialize loader functionality
+   */
+  function initializeLoader() {
+    const loader = document.querySelector('.page-loader');
+    if (!loader) return;
+
+    // Sahifa yuklanish vaqtini kuzatish
+    const startTime = performance.now();
+    let isSlowConnection = false;
+
+    // Internet tezligini tekshirish
+    if (navigator.connection) {
+        isSlowConnection = navigator.connection.downlink < 0.4; // 0.4 Mbps dan past
+    }
+
+    // Sahifa yuklanishini kuzatish
+    window.addEventListener('load', () => {
+        const loadTime = performance.now() - startTime;
+
+        // Agar yuklash 2 sekunddan ko'p vaqt olgan bo'lsa yoki internet sekin bo'lsa
+        if (loadTime > 2000 || isSlowConnection) {
+            setTimeout(() => {
+                hideLoader();
+            }, 500);
+        } else {
+            // Tez yuklangan bo'lsa, loaderni darhol yashirish
+            hideLoader();
+        }
+    });
+
+    // Loader yashirish funksiyasi
+    function hideLoader() {
+        loader.style.opacity = '0';
+        loader.style.visibility = 'hidden';
+        document.body.classList.add('page-loaded');
+    }
+
+    // Sahifadan chiqishda loaderni ko'rsatmaslik
+    window.addEventListener('beforeunload', () => {
+        loader.style.display = 'none';
+    });
+}
+
+  /**
    * Initialize all functionality when DOM is ready
    */
   function initializeAll() {
@@ -170,6 +214,7 @@
       initializeNavbar();
       initializeAlerts();
       initializeDarkMode();
+      initializeLoader();
       console.log("ake.fx: All functionality initialized successfully");
     } catch (error) {
       console.error("ake.fx: Error initializing functionality:", error);
@@ -209,4 +254,34 @@
         document.body.classList.add('dark-mode');
     }
   });
+
+  // Review deletion function
+  function deleteReview(reviewId) {
+    if (confirm('Sharhni o\'chirmoqchimisiz?')) {
+        fetch(`/reviews/${reviewId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove review element from DOM
+                const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
+                if (reviewElement) {
+                    reviewElement.remove();
+                }
+                location.reload(); // Refresh page to show updated reviews
+            } else {
+                alert('Sharhni o\'chirishda xatolik yuz berdi');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Sharhni o\'chirishda xatolik yuz berdi');
+        });
+    }
+}
 })();

@@ -1,39 +1,261 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">🔍 Qidiruv natijalari</h2>
-    {% if query %}
-        <p class="text-muted">Qidiruv so'zi: <strong>{{ query }}</strong></p>
+<div class="search-hero py-5 bg-primary-soft">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-6 fw-bold mb-4">
+                    {% if query %}
+                        <span class="text-gradient">"{{ query }}"</span> bo'yicha natijalar
+                    {% else %}
+                        Kurslarni qidiring
+                    {% endif %}
+                </h1>
+                
+                <!-- Search Form -->
+                <form class="search-form mb-4" method="GET" action="{% url 'search' %}">
+                    <div class="search-input-group">
+                        <input type="text" 
+                               name="q" 
+                               class="form-control form-control-lg" 
+                               placeholder="Kurs nomi, mentor yoki kalit so'z..."
+                               value="{{ query|default:'' }}"
+                               autocomplete="off">
+                        <button type="submit" class="search-btn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                {% if query %}
+                    <p class="text-muted mb-0">
+                        {% if courses %}
+                            <span class="badge bg-primary-soft text-primary">{{ courses|length }}</span> ta kurs topildi
+                        {% else %}
+                            <i class="bi bi-info-circle me-2"></i>Kurs topilmadi
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="search-results py-5">
+    <div class="container">
         {% if courses %}
-        <div class="row">
-            {% for course in courses %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow">
-                    <a href="{% url 'course_detail' course.id %}">
-                        <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="{% url 'course_detail' course.id %}" class="text-decoration-none text-dark">
-                                {{ course.title }}
-                            </a>
-                        </h5>
-                        <p class="card-text">{{ course.description|truncatechars:100 }}</p>
-                        <p class="text-primary fw-bold">${{ course.price }}</p>
-                        <p class="text-muted">Davomiyligi: {{ course.duration }}</p>
-                        <p class="text-muted">Mentor: {{ course.mentor.full_name }}</p>
-                        <a href="{% url 'course_buy' course.id %}" class="btn btn-success btn-sm mt-2">💳 Sotib olish</a>
+            <div class="row g-4">
+                {% for course in courses %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="course-card">
+                        <!-- Course Image -->
+                        <div class="course-image">
+                            <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                            <div class="course-overlay">
+                                <span class="course-level">{{ course.level }}</span>
+                                <div class="course-actions">
+                                    <a href="{% url 'course_detail' course.id %}" class="btn btn-light btn-sm">
+                                        <i class="bi bi-eye me-2"></i>Batafsil
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Course Info -->
+                        <div class="course-info">
+                            <h5 class="course-title">
+                                <a href="{% url 'course_detail' course.id %}">{{ course.title }}</a>
+                            </h5>
+                            <p class="course-desc">{{ course.description|truncatechars:80 }}</p>
+                            
+                            <!-- Course Meta -->
+                            <div class="course-meta">
+                                <div class="meta-item">
+                                    <i class="bi bi-clock"></i>
+                                    {{ course.duration }}
+                                </div>
+                                <div class="meta-item">
+                                    <i class="bi bi-person"></i>
+                                    {{ course.mentor.full_name }}
+                                </div>
+                            </div>
+                            
+                            <!-- Course Footer -->
+                            <div class="course-footer">
+                                <div class="course-price">
+                                    {% if course.is_free %}
+                                        <span class="badge bg-success">Bepul</span>
+                                    {% else %}
+                                        <span class="price">${{ course.price }}</span>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'course_buy' course.id %}" class="btn btn-primary btn-sm">
+                                    Xarid qilish
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p class="text-muted">🚫 Hech qanday kurs topilmadi.</p>
+        {% elif query %}
+            <!-- Empty State -->
+            <div class="empty-state text-center py-5">
+                <img src="{% static 'images/empty-search.svg' %}" alt="No results" class="empty-illustration mb-4">
+                <h3 class="fw-bold mb-3">Kurslar topilmadi</h3>
+                <p class="text-muted mb-4">Boshqa kalit so'z bilan qidirib ko'ring</p>
+                <a href="{% url 'courses_list' %}" class="btn btn-primary">
+                    <i class="bi bi-grid me-2"></i>Barcha kurslar
+                </a>
+            </div>
         {% endif %}
-    {% else %}
-        <p class="text-muted">Iltimos, qidiruv so'zini kiriting.</p>
-    {% endif %}
+    </div>
 </div>
+
+<style>
+.search-hero {
+    background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(37,99,235,0.1) 100%);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.search-input-group {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-input-group input {
+    padding: 1.2rem 3rem 1.2rem 1.5rem;
+    border-radius: 1rem;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.search-input-group input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.15);
+}
+
+.search-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    color: #3b82f6;
+    font-size: 1.2rem;
+}
+
+.course-card {
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+}
+
+.course-image {
+    position: relative;
+    padding-top: 60%;
+}
+
+.course-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.course-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+}
+
+.course-card:hover .course-overlay {
+    opacity: 1;
+}
+
+.course-level {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.9);
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.course-info {
+    padding: 1.5rem;
+}
+
+.course-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.course-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.course-desc {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.course-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.course-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.price {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #3b82f6;
+}
+</style>
 {% endblock %}

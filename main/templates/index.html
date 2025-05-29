@@ -151,6 +151,7 @@
 <!-- REVIEWS SECTION - Simplified Design -->
 <section id="reviews" class="py-6 bg-light">
     <div class="container">
+        <!-- Section Header -->
         <div class="section-header text-center mb-5">
             <span class="badge bg-primary-gradient mb-3 px-3 py-2 rounded-pill fs-6">kurslar haqida</span>
             <h2 class="display-5 fw-bold mb-3">O'quvchilar fikrlari</h2>
@@ -161,46 +162,182 @@
             </div>
             <p class="text-muted fs-5">Kurslarimizdagi talabalarning haqiqiy tajribalari</p>
         </div>
+
+        <!-- Add Review Button -->
+        {% if user.is_authenticated %}
+        <div class="text-center mb-5">
+            <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addReviewModal">
+                <i class="bi bi-plus-circle me-2"></i>Sharh qoldirish
+            </button>
+        </div>
+        {% endif %}
         
+        <!-- Reviews Grid -->
         <div class="row g-4">
             {% for review in reviews %}
             <div class="col-md-4">
-                <div class="testimonial-card bg-white p-4 h-100 rounded-4 shadow-sm border-start border-4 border-primary">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="me-3">
-                            <div class="rounded-circle bg-primary-soft d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                <i class="bi bi-person-fill text-primary fs-4"></i>
+                <div class="review-card h-100 bg-white p-4 rounded-4 shadow-sm border-start border-4 border-primary position-relative hover-lift">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                {% if review.user.profile.image %}
+                                    <img src="{{ review.user.profile.image.url }}" 
+                                         class="rounded-circle"
+                                         width="48" height="48" 
+                                         alt="{{ review.user.get_full_name }}">
+                                {% else %}
+                                    <div class="avatar-placeholder">
+                                        {{ review.user.get_full_name|first }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-1">{{ review.user.get_full_name }}</h6>
+                                <p class="text-muted small mb-0">{{ review.course.title }}</p>
                             </div>
                         </div>
-                        <div>
-                            <h6 class="fw-bold mb-0">{{ review.student.full_name }}</h6>
-                            <small class="text-muted">O'quvchi</small>
+                        <div class="rating-stars">
+                            {% for i in "12345"|make_list %}
+                                <i class="bi bi-star-fill {% if forloop.counter <= review.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                            {% endfor %}
                         </div>
                     </div>
-                    <div class="rating mb-3">
-                        {% for i in "12345" %}
-                        <i class="bi bi-star-fill text-warning"></i>
-                        {% endfor %}
-                    </div>
-                    <blockquote class="mb-0">
-                        <p class="fst-italic text-muted">"{{ review.comment }}"</p>
-                    </blockquote>
-                    <div class="mt-3 text-end">
-                        <small class="text-muted">{{ review.created_at|date:"d F Y" }}</small>
+                    <p class="review-text mb-3">{{ review.comment|linebreaks }}</p>
+                    <div class="text-muted small">
+                        <i class="bi bi-clock me-1"></i>{{ review.date|date:"d.m.Y" }}
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
-        
+
+        <!-- View All Button -->
         <div class="text-center mt-5">
-            <a href="#" class="btn btn-outline-primary rounded-pill px-4">
+            <a href="{% url 'review-list' %}" class="btn btn-outline-primary rounded-pill px-4 hover-lift">
                 <i class="bi bi-chat-square-text me-2"></i>Barcha sharhlarni ko'rish
             </a>
         </div>
     </div>
 </section>
 
+<!-- Add Review Modal -->
+<div class="modal fade" id="addReviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Sharh qoldirish</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm" method="POST" action="{% url 'add_review' %}">
+                    {% csrf_token %}
+                    
+                    <!-- Course Select -->
+                    <div class="mb-4">
+                        <label class="form-label">Kurs <span class="text-danger">*</span></label>
+                        <select name="course" class="form-select" required>
+                            <option value="">Kursni tanlang</option>
+                            {% for enrollment in user.courseenrollment_set.all %}
+                                <option value="{{ enrollment.course.id }}">{{ enrollment.course.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="mb-4">
+                        <label class="form-label">Baholash <span class="text-danger">*</span></label>
+                        <div class="rating-input">
+                            {% for i in "12345"|make_list %}
+                            <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" required>
+                            <label for="star{{ i }}">
+                                <i class="bi bi-star-fill"></i>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="mb-4">
+                        <label class="form-label">Sharh <span class="text-danger">*</span></label>
+                        <textarea name="comment" class="form-control" rows="4" required 
+                                  placeholder="Kurs haqida fikringizni yozing..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">
+                    Bekor qilish
+                </button>
+                <button type="submit" form="reviewForm" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-send me-2"></i>Yuborish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add these styles -->
+<style>
+.review-card {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+}
+
+.avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bs-primary);
+    font-size: 1.5rem;
+}
+
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.rating-input input {
+    display: none;
+}
+
+.rating-input label {
+    cursor: pointer;
+    color: #dee2e6;
+    font-size: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.rating-input label:hover,
+.rating-input label:hover ~ label,
+.rating-input input:checked ~ label {
+    color: #ffc107;
+}
+
+.review-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Dark mode support */
+body.dark-mode .review-card {
+    background: var(--dark);
+}
+
+body.dark-mode .rating-input label {
+    color: #495057;
+}
+</style>
 <!-- STATS SECTION -->
 <section class="py-5 bg-primary text-white">
     <div class="container">
@@ -503,6 +640,39 @@ document.addEventListener('DOMContentLoaded', function() {
         video.style.display = 'none';
         video.parentElement.style.backgroundColor = '#0a0c1d';
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const reviewForm = document.getElementById('reviewForm');
+    const courseSelect = reviewForm.querySelector('select[name="course"]');
+    const ratingInputs = reviewForm.querySelectorAll('input[name="rating"]');
+    const commentText = reviewForm.querySelector('textarea[name="comment"]');
+    const submitBtn = reviewForm.querySelector('button[type="submit"]');
+
+    function validateForm() {
+        const isValid = courseSelect.value && 
+                       Array.from(ratingInputs).some(input => input.checked) &&
+                       commentText.value.trim().length >= 10;
+        
+        submitBtn.disabled = !isValid;
+        return isValid;
+    }
+
+    [courseSelect, ...ratingInputs, commentText].forEach(el => {
+        el.addEventListener('change', validateForm);
+        el.addEventListener('input', validateForm);
+    });
+
+    reviewForm.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            alert('Iltimos, barcha maydonlarni to\'ldiring');
+        }
+    });
+
+    validateForm(); // Initial check
 });
 </script>
 

@@ -319,3 +319,49 @@ def admin_dashboard(request):
         'last_7_days': json.dumps([day.strftime('%Y-%m-%d') for day in last_7_days]),
     }
     return render(request, 'admin_dashboard.html', context)
+
+@login_required
+def add_review(request):
+    if request.method == 'POST':
+        course_id = request.POST.get('course')
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+        
+        if course_id and rating and comment:
+            try:
+                course = Course.objects.get(id=course_id)
+                # Foydalanuvchi bu kursni sotib olganligini tekshirish
+                if Order.objects.filter(user=request.user, course=course, is_paid=True).exists():
+                    # Oldin sharh qoldirmaganligini tekshirish
+                    if not Review.objects.filter(user=request.user, course=course).exists():
+                        Review.objects.create(
+                            user=request.user,
+                            course=course,
+                            rating=rating,
+                            comment=comment
+                        )
+                        messages.success(request, "Sharh muvaffaqiyatli qo'shildi!")
+                    else:
+                        messages.error(request, "Siz bu kurs uchun allaqachon sharh qoldirgansiz")
+                else:
+                    messages.error(request, "Siz bu kursni sotib olmagansiz")
+            except Course.DoesNotExist:
+                messages.error(request, "Kurs topilmadi")
+        else:
+            messages.error(request, "Barcha maydonlarni to'ldiring")
+    
+    return redirect('index')
+
+@login_required
+def delete_review(request, review_id):
+    if request.method == 'POST':
+        try:
+            review = Review.objects.get(id=review_id, user=request.user)
+            review.delete()
+            messages.success(request, "Sharh muvaffaqiyatli o'chirildi")
+            return JsonResponse({'success': True})
+        except Review.DoesNotExist:
+            messages.error(request, "Sharh topilmadi yoki sizga tegishli emas")
+            return JsonResponse({'success': False, 'error': 'Sharh topilmadi'}, status=404)
+    
+    return JsonResponse({'success': False, 'error': 'Noto\'g\'ri so\'rov'}, status=400)
