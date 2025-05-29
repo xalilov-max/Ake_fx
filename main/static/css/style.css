@@ -1865,3 +1865,20 @@ body.dark-mode .shadow,
 body.dark-mode .shadow-lg {
   box-shadow: 0 0.5rem 1rem var(--shadow-color) !important;
 }
+
+/* News Section Styles */
+.news-item img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+}
+.news-item h5 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.news-item p {
+    color: #6c757d;
+    font-size: 1rem;
+}

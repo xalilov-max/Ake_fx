@@ -170,3 +170,54 @@ class Profile(models.Model):
         if self.image:
             self.image.delete()
         super().delete(*args, **kwargs)
+
+class AboutPage(models.Model):
+    title = models.CharField(max_length=200, default="Ake.fx haqida", verbose_name="Sarlavha")
+    subtitle = models.CharField(max_length=200, blank=True, verbose_name="Qo'shimcha sarlavha")
+    content = models.TextField(verbose_name="Asosiy matn")
+    vision = models.TextField(verbose_name="Bizning maqsadimiz", blank=True)
+    mission = models.TextField(verbose_name="Bizning vazifamiz", blank=True)
+    statistics = models.JSONField(
+        default=dict, 
+        verbose_name="Statistika", 
+        blank=True,
+        null=True,  # Qo'shildi
+        help_text="Format: {'students': 1200, 'courses': 24, 'mentors': 15, 'satisfaction': 98}"
+    )
+    team_title = models.CharField(max_length=200, default="Bizning jamoa", verbose_name="Jamoa sarlavhasi")
+    team_description = models.TextField(verbose_name="Jamoa haqida", blank=True)
+    news_title = models.CharField(max_length=200, default="Yangiliklar", verbose_name="Yangiliklar sarlavhasi")
+    news = models.TextField(verbose_name="Yangiliklar (HTML)", blank=True)
+    main_image = models.ImageField(upload_to='about/', blank=True, verbose_name="Asosiy rasm")
+    video_url = models.URLField(blank=True, verbose_name="Video URL", 
+        help_text="YouTube video havolasi")
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "About sahifa"
+        verbose_name_plural = "About sahifa"
+
+    def __str__(self):
+        return self.title
+
+    def get_youtube_embed_url(self):
+        if 'youtube.com/watch?v=' in self.video_url:
+            return self.video_url.replace('watch?v=', 'embed/')
+        elif 'youtu.be/' in self.video_url:
+            video_id = self.video_url.split('/')[-1]
+            return f'https://www.youtube.com/embed/{video_id}'
+        return self.video_url
+
+class News(models.Model):
+    title = models.CharField(max_length=200, verbose_name="Yangilik sarlavhasi")
+    image = models.ImageField(upload_to='news/', verbose_name="Rasm", blank=True, null=True)
+    short_text = models.TextField(verbose_name="Qisqa matn")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Yangilik"
+        verbose_name_plural = "Yangiliklar"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title

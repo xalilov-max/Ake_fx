@@ -1,6 +1,6 @@
 from unicodedata import category
 from django.shortcuts import render,get_object_or_404, redirect
-from .models import CompletedLesson, Course, Lesson, Mentor, Order, Review, Student, Contact, CourseEnrollment,Profile,Category,Level
+from .models import CompletedLesson, Course, Lesson, Mentor, Order, Review, Student, Contact, CourseEnrollment,Profile,Category,Level, AboutPage, News
 from .forms import ContactForm
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -369,3 +369,29 @@ def delete_review(request, review_id):
             return JsonResponse({'success': False, 'error': 'Sharh topilmadi'}, status=404)
     
     return JsonResponse({'success': False, 'error': 'Noto\'g\'ri so\'rov'}, status=400)
+
+def about(request):
+    about = AboutPage.objects.first()
+    if not about:
+        about = AboutPage(
+            title="Ake.fx haqida",
+            content="Ake.fx — zamonaviy trading va ta'lim platformasi.",
+            statistics={
+                'students': 0,
+                'courses': 0,
+                'mentors': 0,
+                'satisfaction': 0
+            }
+        )
+        about.save()
+    # Yangiliklar ro‘yxatini qo‘shamiz (oxirgi 4 ta)
+    news_list = News.objects.all()[:4]
+    context = {
+        'about': about,
+        'has_stats': bool(about.statistics),
+        'has_team': bool(about.team_title and about.team_description),
+        'has_news': bool(about.news_title and about.news),
+        'has_video': bool(about.video_url),
+        'news_list': news_list,  # Qo‘shildi
+    }
+    return render(request, 'about.html', context)

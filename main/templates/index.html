@@ -40,56 +40,82 @@
 </div>
 
 <!-- COURSES SECTION - With cards redesign -->
-<section id="courses" class="py-6 bg-light">
+<section id="courses" class="courses-section py-6">
     <div class="container">
+        <!-- Section Header -->
         <div class="section-header text-center mb-5">
-            <span class="badge bg-primary-gradient mb-3 px-3 py-2 rounded-pill fs-6">Ta'lim</span>
-            <h2 class="display-5 fw-bold mb-3">Ake.fx Kurslari</h2>
-            <div class="divider mx-auto my-3">
-                <span class="divider-line bg-primary"></span>
-                <span class="divider-dot bg-primary"></span>
-                <span class="divider-line bg-primary"></span>
+            <span class="badge bg-gradient-primary mb-3 px-4 py-2 rounded-pill fs-6">
+                <i class="bi bi-laptop me-2"></i>Ta'lim
+            </span>
+            <h2 class="display-4 fw-bold mb-3">Ake.fx Kurslar</h2>
+            <div class="divider mx-auto my-4">
+                <div class="divider-line"></div>
+                <div class="divider-line"></div>
             </div>
-            <p class="text-muted fs-5">Trading bo'yicha professional kurslarimiz bilan tanishing</p>
+            <p class="text-muted fs-5 mb-5">Professional treydingni o'rganishni xoxlaysizmi?<br>Ake.fx kurslari sizga yordam beradi</p>
         </div>
-        
+
+        <!-- Courses Grid -->
         <div class="row g-4">
             {% for course in courses %}
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden transition-all hover-lift">
-                    <div class="position-relative">
-                        <a href="{% url 'course_detail' course.id %}">
-                            <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 220px; object-fit: cover;">
-                            <div class="position-absolute top-0 end-0 m-3">
-                                <span class="badge bg-success rounded-pill px-3 py-2 fs-6">${{ course.price }}</span>
+            <div class="col-lg-4 col-md-6">
+                <div class="course-card">
+                    <!-- Card Image -->
+                    <div class="course-image">
+                        <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                        <div class="course-overlay">
+                            <div class="course-preview">
+                                <a href="{% url 'course_detail' course.id %}" class="btn btn-light btn-sm rounded-pill">
+                                    <i class="bi bi-play-circle me-1"></i>kurs haqida
+                                </a>
                             </div>
-                        </a>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-primary-soft text-primary me-2">{{ course.level }}</span>
-                            <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ course.duration }}</span>
                         </div>
-                        <h5 class="card-title fw-bold mb-3">
-                            <a href="{% url 'course_detail' course.id %}" class="text-decoration-none text-dark stretched-link">
-                                {{ course.title }}
-                            </a>
+                        <!-- Price Badge -->
+                        <div class="course-price">
+                            <span class="badge bg-gradient-success rounded-pill px-3 py-2">
+                                <i class="bi bi-tag-fill me-1"></i>${{ course.price }}
+                            </span>
+                        </div>
+                        <!-- Level Badge -->
+                        <div class="course-level">
+                            <span class="badge bg-blur text-white rounded-pill px-3">
+                                <i class="bi bi-bar-chart-fill me-1"></i>{{ course.level }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="course-body">
+                        <div class="course-meta mb-3">
+                            <span class="course-category">
+                                <i class="bi bi-folder2 me-1"></i>Trading
+                            </span>
+                            <span class="course-duration">
+                                <i class="bi bi-clock me-1"></i>{{ course.duration }}
+                            </span>
+                        </div>
+                        
+                        <h5 class="course-title">
+                            <a href="{% url 'course_detail' course.id %}">{{ course.title }}</a>
                         </h5>
-                        <p class="card-text text-muted mb-4">{{ course.description|truncatechars:120 }}</p>
-                        <div class="d-flex align-items-center">
-                            <div class="me-3">
-                                <img src="{{ course.mentor.image.url }}" alt="{{ course.mentor.full_name }}" 
-                                     class="rounded-circle border border-2 border-white" width="36" height="36" style="object-fit: cover;">
+                        
+                        <p class="course-text">{{ course.description|truncatechars:120 }}</p>
+
+                        <!-- Mentor Info -->
+                        <div class="course-mentor">
+                            <div class="mentor-avatar">
+                                <img src="{{ course.mentor.image.url }}" alt="{{ course.mentor.full_name }}">
+                                <div class="mentor-status {% if course.mentor.is_online %}online{% endif %}"></div>
                             </div>
-                            <div>
-                                <small class="d-block text-muted">Mentor</small>
-                                <small class="fw-bold">{{ course.mentor.full_name }}</small>
+                            <div class="mentor-info">
+                                <span class="mentor-label">Mentor</span>
+                                <span class="mentor-name">{{ course.mentor.full_name }}</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-footer bg-white border-0 p-4 pt-0">
-                        <div class="d-grid">
-                            <a href="{% url 'course_buy' course.id %}" class="btn btn-primary rounded-pill py-2">
+
+                        <!-- Action Button -->
+                        <div class="course-action">
+                            <a href="{% url 'course_buy' course.id %}" class="btn btn-gradient-primary w-100">
                                 <i class="bi bi-cart3 me-2"></i>Sotib olish
                             </a>
                         </div>
@@ -108,11 +134,8 @@
             <span class="badge bg-primary-gradient mb-3 px-3 py-2 rounded-pill fs-6">Professional</span>
             <h2 class="display-5 fw-bold mb-3">Mentorlar</h2>
             <div class="divider mx-auto my-3">
-                <span class="divider-line bg-primary"></span>
-                <span class="divider-dot bg-primary"></span>
-                <span class="divider-line bg-primary"></span>
             </div>
-            <p class="text-muted fs-5">Professional bilim va tajriba bilan o'rtoqlashadigan mutaxassislarimiz</p>
+            <p class="text-muted fs-5">Professional bilim va tajriba</p>
         </div>
         
         <div class="row g-4 justify-content-center">
@@ -137,7 +160,7 @@
                     {% endif %}
                     <h5 class="fw-bold mb-2">{{ mentor.full_name }}</h5>
                     <p class="text-primary small mb-3 fw-bold">{{ mentor.specialty }}</p>
-                    <p class="small text-muted mb-4">{{ mentor.experience }} yillik tajriba</p>
+                    <p class="small text-muted mb-4">{{ mentor.experience }} 4 yillik tajriba</p>
                     <a href="{% url 'mentor_detail' mentor.id %}" class="btn btn-outline-primary btn-sm rounded-pill px-4 border-2">
                         <i class="bi bi-person-lines-fill me-1"></i>Profilni ko'rish
                     </a>
@@ -156,9 +179,9 @@
             <span class="badge bg-primary-gradient mb-3 px-3 py-2 rounded-pill fs-6">kurslar haqida</span>
             <h2 class="display-5 fw-bold mb-3">O'quvchilar fikrlari</h2>
             <div class="divider mx-auto my-3">
-                <span class="divider-line bg-primary"></span>
-                <span class="divider-dot bg-primary"></span>
-                <span class="divider-line bg-primary"></span>
+                <div class="divider-line bg-primary-gradient"></div>
+                <span class="divider-dot bg-primary-gradient"></span>
+                <div class="divider-line bg-primary-gradient"></div>
             </div>
             <p class="text-muted fs-5">Kurslarimizdagi talabalarning haqiqiy tajribalari</p>
         </div>
@@ -331,6 +354,236 @@ body.dark-mode .review-card {
 
 body.dark-mode .rating-input label {
     color: #495057;
+}
+
+/* Courses Section Styles */
+.courses-section {
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+    padding: 100px 0;
+}
+
+/* Course Card */
+.course-card {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: all 0.4s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.course-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+}
+
+/* Course Image */
+.course-image {
+    position: relative;
+    padding-top: 60%;
+    overflow: hidden;
+}
+
+.course-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.course-card:hover .course-image img {
+    transform: scale(1.1);
+}
+
+/* Course Overlay */
+.course-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.course-card:hover .course-overlay {
+    opacity: 1;
+}
+
+/* Price and Level Badges */
+.course-price {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 2;
+}
+
+.course-level {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 2;
+}
+
+.bg-blur {
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(4px);
+}
+
+/* Course Body */
+.course-body {
+    padding: 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Course Meta */
+.course-meta {
+    display: flex;
+    gap: 15px;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Course Title */
+.course-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.course-title a {
+    color: #2c3e50;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.course-title a:hover {
+    color: var(--bs-primary);
+}
+
+/* Course Text */
+.course-text {
+    color: #6c757d;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Mentor Section */
+.course-mentor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.mentor-avatar {
+    position: relative;
+    width: 45px;
+    height: 45px;
+}
+
+.mentor-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.mentor-status {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #dc3545;
+    border: 2px solid #fff;
+}
+
+.mentor-status.online {
+    background: #198754;
+}
+
+.mentor-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.mentor-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.mentor-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+}
+
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient-primary:hover {
+    background: linear-gradient(135deg, #0b5ed7 0%, #520dc2 100%);
+    transform: translateY(-2px);
+    color: white;
+}
+
+/* Section Divider */
+.divider {
+    display: flex;
+    align-items: center;
+    max-width: 300px;
+}
+
+.divider-line {
+    flex-grow: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--bs-primary), transparent);
+}
+
+.divider-icon {
+    padding: 0 20px;
+    color: var(--bs-primary);
+    font-size: 1.5rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .courses-section {
+        padding: 60px 0;
+    }
+    
+    .course-card {
+        margin-bottom: 20px;
+    }
 }
 </style>
 <!-- STATS SECTION -->

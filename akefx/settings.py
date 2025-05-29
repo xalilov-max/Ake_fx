@@ -149,3 +149,23 @@ ADMIN_EMAIL = 'xalilovbobur056@gmail.com'
 LOGIN_URL = '/auth/login/'  # Login sahifasi manzili
 LOGIN_REDIRECT_URL = 'dashboard'  # Kirishdan keyin yo'naltirish
 LOGOUT_REDIRECT_URL = '/'  # Chiqishdan keyin yo'naltirish
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+

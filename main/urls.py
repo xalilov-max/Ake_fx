@@ -26,4 +26,5 @@ urlpatterns = [
     path('course/<int:course_id>/lesson/<int:lesson_id>/', views.lesson_detail, name='lesson_detail'),
     path('search/', views.search, name='search'),  # Qidiruv uchun URL
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('about/', views.about, name='about'),
 ]

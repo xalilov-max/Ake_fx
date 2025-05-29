@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="about-hero position-relative overflow-hidden">
+    <div class="container py-6">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fs-6 mb-3">
+                    <i class="bi bi-info-circle me-2"></i>Biz haqimizda
+                </span>
+                <h1 class="display-4 fw-bold mb-4">{{ about.title }}</h1>
+                {% if about.subtitle %}
+                    <p class="lead text-muted mb-4">{{ about.subtitle }}</p>
+                {% endif %}
+                <div class="about-content text-muted fs-5 mb-4">
+                    {{ about.content|linebreaks }}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    {% if about.main_image %}
+                        <img src="{{ about.main_image.url }}" alt="{{ about.title }}" 
+                             class="img-fluid rounded-4 shadow-lg about-main-img">
+                    {% else %}
+                        <img src="{% static 'images/about-placeholder.svg' %}" 
+                             alt="{{ about.title }}" 
+                             class="img-fluid rounded-4 shadow-lg about-main-img">
+                    {% endif %}
+                    <!-- Floating elements -->
+                    <div class="about-shape-1"></div>
+                    <div class="about-shape-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Video Section -->
+{% if about.video_url %}
+<section class="about-video py-6 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="ratio ratio-16x9 rounded-4 shadow-lg overflow-hidden">
+                    <iframe src="{{ about.get_youtube_embed_url }}" 
+                            title="{{ about.title }}"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Mission & Vision -->
+{% if about.vision or about.mission %}
+<section class="about-features py-6">
+    <div class="container">
+        <div class="row g-4">
+            {% if about.vision %}
+            <div class="col-md-6">
+                <div class="feature-card bg-white rounded-4 p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-eye text-primary"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Bizning maqsadimiz</h3>
+                    <p class="text-muted mb-0">{{ about.vision }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% if about.mission %}
+            <div class="col-md-6">
+                <div class="feature-card bg-white rounded-4 p-4 h-100">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-flag text-primary"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Bizning vazifamiz</h3>
+                    <p class="text-muted mb-0">{{ about.mission }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Statistics Section -->
+{% if about.statistics %}
+<section class="about-stats py-6 bg-primary text-white">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            {% for key, value in about.statistics.items %}
+            <div class="col-6 col-md-3">
+                <div class="stat-card text-center">
+                    <h2 class="display-4 fw-bold mb-2 counter">{{ value }}</h2>
+                    <p class="mb-0 text-white-50 text-uppercase">{{ key }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Team Section -->
+{% if about.team_title and about.team_description %}
+<section class="about-team py-6 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fs-6 mb-3">
+                <i class="bi bi-people me-2"></i>{{ about.team_title }}
+            </span>
+            <h2 class="display-6 fw-bold mb-4">Bizning jamoa</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <p class="lead text-muted">{{ about.team_description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- News Section -->
+{% if news_list %}
+<section class="about-news-list py-6 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fs-6 mb-3">
+                <i class="bi bi-newspaper me-2"></i>So‘nggi yangiliklar
+            </span>
+            <h2 class="display-6 fw-bold mb-4">Yangiliklar</h2>
+        </div>
+        <div class="row g-4">
+            {% for news in news_list %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    {% if news.image %}
+                    <img src="{{ news.image.url }}" class="card-img-top rounded-top-4" alt="{{ news.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-2">{{ news.title }}</h5>
+                        <p class="card-text text-muted mb-3">{{ news.short_text|truncatechars:120 }}</p>
+                        <span class="text-secondary small">{{ news.created_at|date:"d.m.Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<style>
+/* About Hero */
+.about-hero {
+    background: linear-gradient(to bottom, #ffffff, #f8fafd);
+    padding: 120px 0 80px;
+}
+
+.about-main-img {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.about-main-img:hover {
+    transform: translateY(-10px);
+}
+
+/* Floating Shapes */
+.about-shape-1,
+.about-shape-2 {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.1;
+}
+
+.about-shape-1 {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(45deg, #0d6efd, #6610f2);
+    top: -30px;
+    right: -30px;
+    animation: float 6s ease-in-out infinite;
+}
+
+.about-shape-2 {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(45deg, #0dcaf0, #0d6efd);
+    bottom: -20px;
+    left: -20px;
+    animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(0, 20px); }
+    100% { transform: translate(0, 0); }
+}
+
+/* Feature Cards */
+.feature-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(13,110,253,0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feature-icon i {
+    font-size: 24px;
+}
+
+/* Stats Section */
+.about-stats {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+}
+
+.stat-card {
+    padding: 2rem;
+    border-radius: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+/* News Section */
+.news-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+    .about-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .about-main-img {
+        margin-top: 2rem;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .feature-card {
+        background: #2d3748;
+    }
+    
+    .news-content {
+        background: #2d3748;
+    }
+    
+    .about-hero {
+        background: linear-gradient(to bottom, #1a202c, #2d3748);
+    }
+}
+</style>
+
+<script>
+// Counter Animation
+document.addEventListener('DOMContentLoaded', function() {
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+
+    const observerCallback = (entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = +entry.target.innerText;
+                let count = 0;
+                const updateCount = () => {
+                    const increment = target / speed;
+                    if (count < target) {
+                        count += increment;
+                        entry.target.innerText = Math.ceil(count);
+                        setTimeout(updateCount, 1);
+                    } else {
+                        entry.target.innerText = target;
+                    }
+                };
+                updateCount();
+                observer.unobserve(entry.target);
+            }
+        });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, {
+        threshold: 0.5
+    });
+
+    counters.forEach(counter => observer.observe(counter));
+});
+</script>
+{% endblock %}
