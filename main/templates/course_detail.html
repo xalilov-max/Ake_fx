@@ -105,64 +105,74 @@
                 <div class="card-body p-4">
                     <h3 class="fw-bold mb-4">
                         <i class="bi bi-collection-play text-primary me-2"></i>
-                        Kurs tarkibi
+                        Kurs tarkibi ({{ lessons.count }} ta dars)
                     </h3>
 
+                    {% if lessons %}
                     <div class="accordion" id="lessonsAccordion">
                         {% for lesson in lessons %}
-                        <div class="accordion-item border-0 mb-3 rounded-3">
+                        <div class="accordion-item border-0 mb-3">
                             <h2 class="accordion-header">
-                                <button class="accordion-button collapsed rounded-3" type="button" 
+                                <button class="accordion-button collapsed rounded-3 {% if lesson.id in completed_lessons %}bg-success-soft{% endif %}" 
+                                        type="button" 
                                         data-bs-toggle="collapse" 
                                         data-bs-target="#lesson{{ lesson.id }}">
                                     <div class="d-flex align-items-center w-100">
-                                        <div class="lesson-number me-3">
-                                            {{ forloop.counter }}
-                                        </div>
+                                        <div class="lesson-number me-3">{{ forloop.counter }}</div>
                                         <div class="flex-grow-1">
                                             <h6 class="mb-0">{{ lesson.title }}</h6>
-                                            <small class="text-muted">
-                                                <i class="bi bi-clock-history me-1"></i>
-                                                {{ lesson.duration }}
-                                            </small>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-primary-soft text-primary me-2">
+                                                    <i class="bi bi-clock me-1"></i>{{ lesson.duration }}
+                                                </span>
+                                                {% if lesson.is_free %}
+                                                <span class="badge bg-success-soft text-success">
+                                                    <i class="bi bi-unlock me-1"></i>Bepul
+                                                </span>
+                                                {% endif %}
+                                            </div>
                                         </div>
-                                        {% if course.is_paid %}
-                                        <button class="btn btn-sm btn-outline-primary rounded-pill complete-lesson ms-3" 
-                                                data-lesson-id="{{ lesson.id }}">
-                                            <i class="bi bi-check-circle me-1"></i>
-                                            Tugatish
-                                        </button>
+                                        {% if lesson.id in completed_lessons %}
+                                        <i class="bi bi-check-circle-fill text-success ms-3"></i>
                                         {% endif %}
                                     </div>
                                 </button>
                             </h2>
-                            <div id="lesson{{ lesson.id }}" class="accordion-collapse collapse"
-                                 data-bs-parent="#lessonsAccordion">
+                            <div id="lesson{{ lesson.id }}" class="accordion-collapse collapse" data-bs-parent="#lessonsAccordion">
                                 <div class="accordion-body">
-                                    {% if lesson.video_url %}
-                                    <div class="ratio ratio-16x9 mb-3 rounded-3 overflow-hidden">
-                                        <iframe 
-                                            src="{{ lesson.get_youtube_embed_url }}"
-                                            title="{{ lesson.title }}"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen
-                                            loading="lazy">
-                                        </iframe>
-                                    </div>
+                                    {% if lesson.is_free or course.is_paid %}
+                                        {% if lesson.video_url %}
+                                        <div class="ratio ratio-16x9 mb-3">
+                                            <iframe src="{{ lesson.get_youtube_embed_url }}"
+                                                    title="{{ lesson.title }}"
+                                                    allowfullscreen
+                                                    class="rounded-3">
+                                            </iframe>
+                                        </div>
+                                        {% endif %}
+                                        <p class="mb-0">{{ lesson.description }}</p>
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="bi bi-lock-fill text-primary fs-1 mb-3"></i>
+                                            <h5>Bu dars premium foydalanuvchilar uchun</h5>
+                                            <p class="text-muted mb-3">Darsni ko'rish uchun kursni sotib oling</p>
+                                            <a href="{% url 'course_buy' course.id %}" class="btn btn-primary">
+                                                <i class="bi bi-cart3 me-2"></i>Sotib olish
+                                            </a>
+                                        </div>
                                     {% endif %}
-                                    <p class="mb-0">{{ lesson.description }}</p>
                                 </div>
                             </div>
                         </div>
-                        {% empty %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-journal-x display-1 text-muted mb-3"></i>
-                            <h5>Hozircha darslar mavjud emas</h5>
-                            <p class="text-muted mb-0">Tez orada darslar qo'shiladi</p>
-                        </div>
                         {% endfor %}
                     </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-journal-x display-1 text-muted mb-3"></i>
+                        <h5>Hozircha darslar mavjud emas</h5>
+                        <p class="text-muted mb-0">Tez orada darslar qo'shiladi</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -170,16 +180,21 @@
 </div>
 
 <!-- Video Player Section -->
+{% if lesson.video_url %}
 <div class="video-player-section mb-4">
     <div class="ratio ratio-16x9">
         <iframe id="videoPlayer"
-                src="{{ current_lesson.get_youtube_embed_url }}?autoplay=0&rel=0&showinfo=0&controls=1"
+                src="{{ lesson.get_youtube_embed_url }}?rel=0&showinfo=0&controls=1"
                 class="rounded-4 shadow-sm"
                 allowfullscreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                title="{{ lesson.title }}"
+                loading="lazy"
+                onerror="handleVideoError(this)">
         </iframe>
     </div>
 </div>
+{% endif %}
 
 <style>
 /* Course page specific styles */
@@ -202,22 +217,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(var(--bs-primary-rgb), 0.1);
-    border-radius: 50%;
-    font-weight: 500;
+    background: var(--bs-primary-soft);
     color: var(--bs-primary);
+    border-radius: 50%;
+    font-weight: 600;
 }
 
-.hover-lift {
-    transition: transform 0.2s ease;
+.bg-success-soft {
+    background-color: rgba(25, 135, 84, 0.1) !important;
 }
 
-.hover-lift:hover {
-    transform: translateY(-5px);
+.bg-primary-soft {
+    background-color: rgba(13, 110, 253, 0.1) !important;
 }
 
 .accordion-button:not(.collapsed) {
-    background: rgba(var(--bs-primary-rgb), 0.1);
+    background-color: rgba(13, 110, 253, 0.1);
     color: var(--bs-primary);
 }
 
@@ -246,7 +261,7 @@
 
 .video-error {
     height: 100%;
-    background: rgba(var(--bs-primary-rgb), 0.1);
+    background: rgba(var(--bs-primary-rgb), 0.05);
     color: var(--bs-dark);
 }
 
@@ -347,23 +362,49 @@ document.querySelectorAll(".complete-lesson").forEach(button => {
     });
 });
 
+// Video error handling function
 function handleVideoError(iframe) {
-    iframe.addEventListener('error', function() {
-        const container = iframe.closest('.ratio');
-        container.innerHTML = `
-            <div class="d-flex align-items-center justify-content-center h-100 bg-light rounded">
-                <div class="text-center">
-                    <i class="bi bi-exclamation-triangle text-warning display-4"></i>
-                    <p class="mt-2 mb-0">Video yuklanishda xatolik yuz berdi</p>
-                </div>
+    const container = iframe.closest('.ratio');
+    container.innerHTML = `
+        <div class="video-error d-flex align-items-center justify-content-center">
+            <div class="text-center">
+                <i class="bi bi-exclamation-triangle fs-1 text-warning mb-3"></i>
+                <h5>Video mavjud emas</h5>
+                <p class="text-muted mb-0">Video vaqtinchalik ko'rsatib bo'lmaydi</p>
             </div>
-        `;
-    });
+        </div>
+    `;
 }
 
-document.querySelectorAll('iframe[src*="youtube.com"]').forEach(iframe => {
-    handleVideoError(iframe);
+// Check video availability
+function checkVideoAvailability(iframe) {
+    fetch(iframe.src)
+        .then(response => {
+            if (!response.ok) {
+                handleVideoError(iframe);
+            }
+        })
+        .catch(() => handleVideoError(iframe));
+}
+
+// Initialize videos when document loads
+document.addEventListener('DOMContentLoaded', function() {
+    const videos = document.querySelectorAll('.video-player-section iframe');
+    videos.forEach(iframe => {
+        checkVideoAvailability(iframe);
+        iframe.onerror = () => handleVideoError(iframe);
+    });
 });
+
+// Update video URL function
+function updateVideoPlayer(url, title) {
+    const player = document.getElementById('videoPlayer');
+    if (player) {
+        player.src = url + "?rel=0&showinfo=0&controls=1";
+        player.title = title;
+        checkVideoAvailability(player);
+    }
+}
 
 // Video Player bilan ishlash
 document.addEventListener('DOMContentLoaded', function() {

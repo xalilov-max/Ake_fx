@@ -93,13 +93,21 @@ class ContactAdmin(admin.ModelAdmin):
     show_message.short_description = 'Xabar'
 
 
+class LessonInline(admin.TabularInline):
+    model = Lesson
+    extra = 1
+    fields = ('title', 'description', 'video_url', 'duration', 'order', 'is_free')
+
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price', 'duration', 'mentor', 'category', 'level', 'is_paid')
-    list_filter = ('is_paid', 'category', 'level', 'mentor')
+    inlines = [LessonInline]
+    list_display = ('title', 'price', 'mentor', 'is_paid', 'lesson_count')
     search_fields = ('title', 'description')
-    list_editable = ('price', 'is_paid')
-    autocomplete_fields = ['mentor']
+    list_filter = ('is_paid', 'mentor')
+
+    def lesson_count(self, obj):
+        return obj.lessons.count()
+    lesson_count.short_description = 'Darslar soni'
 
 
 @admin.register(CourseEnrollment)

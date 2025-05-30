@@ -126,29 +126,97 @@
 
 <!-- News Section -->
 {% if news_list %}
-<section class="about-news-list py-6 bg-light">
+<section class="about-news py-6">
     <div class="container">
+        <!-- Section Header -->
         <div class="text-center mb-5">
-            <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fs-6 mb-3">
-                <i class="bi bi-newspaper me-2"></i>So‘nggi yangiliklar
+            <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fs-6">
+                <i class="bi bi-newspaper me-2"></i>So'nggi yangiliklar
             </span>
-            <h2 class="display-6 fw-bold mb-4">Yangiliklar</h2>
+            <h2 class="display-5 fw-bold mb-3">Yangiliklar va E'lonlar</h2>
+            <div class="divider mx-auto my-3">
+                <div class="divider-line"></div>
+                <span class="divider-dot bg-primary"></span>
+                <div class="divider-line"></div>
+            </div>
+            <p class="text-muted">Ake.fx platformasidagi so'nggi yangiliklar bilan tanishing</p>
         </div>
+
+        <!-- Featured News -->
+        {% with latest_news=news_list|first %}
+        <div class="featured-news mb-5">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden hover-lift">
+                <div class="row g-0">
+                    <div class="col-lg-6">
+                        {% if latest_news.image %}
+                        <img src="{{ latest_news.image.url }}" 
+                             class="w-100 h-100 object-fit-cover" 
+                             alt="{{ latest_news.title }}"
+                             style="min-height: 400px;">
+                        {% endif %}
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card-body p-lg-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-primary-soft text-primary me-2">Asosiy yangilik</span>
+                                <span class="text-muted small">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ latest_news.created_at|date:"d.m.Y" }}
+                                </span>
+                            </div>
+                            <h3 class="card-title fw-bold mb-3">{{ latest_news.title }}</h3>
+                            <p class="card-text text-muted mb-4">{{ latest_news.short_text }}</p>
+                            <!-- Featured news havolasini yangilash -->
+                            <a href="{% url 'news_detail' latest_news.id %}" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-arrow-right me-2"></i>Batafsil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+
+        <!-- News Grid -->
         <div class="row g-4">
-            {% for news in news_list %}
+            {% for news in news_list|slice:"1:" %}
             <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
                     {% if news.image %}
-                    <img src="{{ news.image.url }}" class="card-img-top rounded-top-4" alt="{{ news.title }}">
+                    <div class="card-img-top position-relative" style="height: 200px;">
+                        <img src="{{ news.image.url }}" 
+                             class="w-100 h-100 object-fit-cover rounded-top-4" 
+                             alt="{{ news.title }}">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-3" 
+                             style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                            <span class="badge bg-primary">Yangilik</span>
+                        </div>
+                    </div>
                     {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold mb-2">{{ news.title }}</h5>
-                        <p class="card-text text-muted mb-3">{{ news.short_text|truncatechars:120 }}</p>
-                        <span class="text-secondary small">{{ news.created_at|date:"d.m.Y" }}</span>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center text-muted small mb-2">
+                            <i class="bi bi-calendar2 me-2"></i>
+                            {{ news.created_at|date:"d.m.Y" }}
+                        </div>
+                        <h5 class="card-title fw-bold mb-3">{{ news.title }}</h5>
+                        <p class="card-text text-muted">{{ news.short_text|truncatechars:120 }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                        <!-- News Grid ichidagi havolani yangilash -->
+                        <a href="{% url 'news_detail' news.id %}" class="btn btn-link text-primary p-0">
+                            Batafsil<i class="bi bi-arrow-right ms-2"></i>
+                        </a>
                     </div>
                 </div>
             </div>
             {% endfor %}
+        </div>
+
+        <!-- View All Button -->
+        <div class="text-center mt-5">
+            <a href="{% url 'news_list' %}" class="btn btn-outline-primary rounded-pill px-4 py-2 hover-lift">
+                <i class="bi bi-grid me-2"></i>Barcha yangiliklar
+            </a>
         </div>
     </div>
 </section>
@@ -249,7 +317,75 @@
     line-height: 1.8;
 }
 
-/* Responsive Design */
+/* News Section Styles */
+.about-news {
+    background: linear-gradient(to bottom, #fff, #f8f9fa);
+}
+
+.featured-news .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
+.bg-primary-soft {
+    background-color: rgba(13,110,253,.1);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.divider-line {
+    flex: 1;
+    height: 2px;
+    background: rgba(13,110,253,.1);
+}
+
+.divider-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bs-primary);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .about-news {
+        background: linear-gradient(to bottom, #212529, #1a1d20);
+    }
+
+    .card {
+        background-color: #2b3035;
+        border-color: #373b3e;
+    }
+
+    .text-muted {
+        color: #adb5bd !important;
+    }
+
+    .bg-primary-soft {
+        background-color: rgba(13,110,253,.2);
+    }
+}
+
+/* Responsive adjustments */
 @media (max-width: 991.98px) {
     .about-hero {
         padding: 100px 0 60px;
@@ -257,6 +393,10 @@
     
     .about-main-img {
         margin-top: 2rem;
+    }
+
+    .featured-news img {
+        min-height: 300px !important;
     }
 }
 

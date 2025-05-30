@@ -18,24 +18,16 @@ from datetime import timedelta
 import json
 
 def index(request):
-    courses = Course.objects.all()
+    courses = Course.objects.all()[:6]  # So'nggi 6 ta kurs
     mentors = Mentor.objects.all()
-    reviews = Review.objects.all()
-    levels = Level.objects.all()
-    category_id = request.GET.get('category')
-    level_id = request.GET.get('level')
-
-    if category_id:
-        courses = courses.filter(category_id=category_id)
-    if level_id:
-        courses = courses.filter(level_id=level_id)
-
+    reviews = Review.objects.all()[:3]  # So'nggi 3 ta sharh
+    news_list = News.objects.order_by('-created_at')[:3]  # So'nggi 3 ta yangilik
+    
     context = {
         'courses': courses,
-        'categories': category,
-        'levels': levels,
-        'mentors': mentors,
+        'mentors': mentors, 
         'reviews': reviews,
+        'news_list': news_list,
     }
     return render(request, 'index.html', context)
 
@@ -104,10 +96,23 @@ def enroll_course(request):
     messages.info(request, "Kursga yozilish uchun kursni tanlang")
     return redirect('course_list')
 
-def course_detail(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    lessons = course.lessons.all()  # Ushbu kursga tegishli darslar
-    return render(request, "course_detail.html", {"course": course, "lessons": lessons})
+def course_detail(request, course_id):  # Changed from pk to course_id
+    course = get_object_or_404(Course, pk=course_id)
+    lessons = course.lessons.all()
+    completed_lessons = []
+    
+    if request.user.is_authenticated:
+        completed_lessons = CompletedLesson.objects.filter(
+            user=request.user,
+            lesson__course=course
+        ).values_list('lesson_id', flat=True)
+
+    context = {
+        'course': course,
+        'lessons': lessons,
+        'completed_lessons': completed_lessons,
+    }
+    return render(request, 'course_detail.html', context)
 
 @csrf_exempt
 @login_required
@@ -384,14 +389,38 @@ def about(request):
             }
         )
         about.save()
-    # Yangiliklar ro‘yxatini qo‘shamiz (oxirgi 4 ta)
-    news_list = News.objects.all()[:4]
+
+    # So'nggi 4 ta yangilikni olish
+    news_list = News.objects.order_by('-created_at')[:4]
+    
     context = {
         'about': about,
         'has_stats': bool(about.statistics),
         'has_team': bool(about.team_title and about.team_description),
-        'has_news': bool(about.news_title and about.news),
         'has_video': bool(about.video_url),
-        'news_list': news_list,  # Qo‘shildi
+        'news_list': news_list,
     }
+    
     return render(request, 'about.html', context)
+
+def news_list(request):
+    """Barcha yangiliklar ro'yxati"""
+    news_list = News.objects.order_by('-created_at')
+    
+    context = {
+        'news_list': news_list,
+        'latest_news': news_list.first() if news_list.exists() else None,
+    }
+    return render(request, 'news/news_list.html', context)
+
+def news_detail(request, news_id):
+    """Yangilik tafsilotlari sahifasi"""
+    news = get_object_or_404(News, id=news_id)
+    # O'xshash yangiliklar (optional)
+    related_news = News.objects.exclude(id=news_id).order_by('-created_at')[:3]
+    
+    context = {
+        'news': news,
+        'related_news': related_news,
+    }
+    return render(request, 'news/news_detail.html', context)

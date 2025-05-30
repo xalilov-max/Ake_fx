@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User as users
+from django.urls import reverse
 
 class Mentor(models.Model):
     full_name = models.CharField(max_length=255, verbose_name="To'liq ism")
@@ -71,6 +72,11 @@ class Course(models.Model):
     level = models.ForeignKey('Level', on_delete=models.SET_NULL, null=True, verbose_name='Daraja')
     created_at = models.DateTimeField(auto_now_add=True)
     
+    class Meta:
+        ordering = ['-created_at']  # Add default ordering
+        verbose_name = "Kurs"
+        verbose_name_plural = "Kurslar"
+
     def __str__(self):
         return self.title
 
@@ -112,33 +118,38 @@ class Contact(models.Model):
         return self.name
 
 class Lesson(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
     title = models.CharField(max_length=255, verbose_name="Dars nomi")
     description = models.TextField(verbose_name="Tavsif")
-    video_url = models.URLField(max_length=255)
+    video_url = models.URLField(verbose_name="Video havolasi", blank=True, null=True)
+    duration = models.CharField(max_length=50, verbose_name="Davomiyligi", default="00:00")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib raqami")
+    is_free = models.BooleanField(default=False, verbose_name="Bepul dars")
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def get_youtube_embed_url(self):
-        """Convert YouTube URL to embed URL"""
-        if 'youtube.com/watch?v=' in self.video_url:
-            video_id = self.video_url.split('watch?v=')[1]
-            return f'https://www.youtube.com/embed/{video_id}'
-        elif 'youtu.be/' in self.video_url:
-            video_id = self.video_url.split('/')[-1]
-            return f'https://www.youtube.com/embed/{video_id}'
-        return self.video_url
-
-    def clean(self):
-        """Clean video URL before saving"""
-        if self.video_url:
-            # Extract video ID if full URL is provided
-            if "youtube.com/watch?v=" in self.video_url:
-                self.video_url = self.video_url.split("watch?v=")[1]
-            elif "youtu.be/" in self.video_url:
-                self.video_url = self.video_url.split("youtu.be/")[1]
+    class Meta:
+        ordering = ['order']
+        verbose_name = "Dars"
+        verbose_name_plural = "Darslar"
 
     def __str__(self):
-        return f"{self.course.title} - {self.title}"
+        return self.title
+
+    def get_youtube_embed_url(self):
+        """Returns embedded YouTube URL or None if invalid"""
+        if not self.video_url:
+            return None
+            
+        try:
+            if 'youtube.com/watch?v=' in self.video_url:
+                video_id = self.video_url.split('watch?v=')[1].split('&')[0]
+                return f'https://www.youtube.com/embed/{video_id}'
+            elif 'youtu.be/' in self.video_url:
+                video_id = self.video_url.split('/')[-1]
+                return f'https://www.youtube.com/embed/{video_id}'
+            return self.video_url
+        except:
+            return None
 
 class CompletedLesson(models.Model):
     user = models.ForeignKey(users, on_delete=models.CASCADE)
@@ -210,10 +221,11 @@ class AboutPage(models.Model):
 
 class News(models.Model):
     title = models.CharField(max_length=200, verbose_name="Yangilik sarlavhasi")
-    image = models.ImageField(upload_to='news/', verbose_name="Rasm", blank=True, null=True)
     short_text = models.TextField(verbose_name="Qisqa matn")
+    content = models.TextField(verbose_name="To'liq matn")
+    image = models.ImageField(upload_to='news/', verbose_name="Rasm")
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     class Meta:
         verbose_name = "Yangilik"
         verbose_name_plural = "Yangiliklar"
@@ -221,3 +233,6 @@ class News(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('news_detail', args=[str(self.id)])

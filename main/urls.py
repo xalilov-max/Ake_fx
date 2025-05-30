@@ -27,4 +27,6 @@ urlpatterns = [
     path('search/', views.search, name='search'),  # Qidiruv uchun URL
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('about/', views.about, name='about'),
+    path('news/', views.news_list, name='news_list'),
+    path('news/<int:news_id>/', views.news_detail, name='news_detail'),
 ]
