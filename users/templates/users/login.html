@@ -5,56 +5,96 @@
 <div class="auth-wrapper">
     <div class="auth-container">
         <div class="auth-card">
-            <!-- Title -->
-            <h1 class="auth-title">Xush kelibsiz!</h1>
-            <p class="auth-subtitle mb-4">Akkauntingizga kirish uchun ma'lumotlarni kiriting</p>
+            <!-- Logo -->
+            <div class="text-center mb-4">
+                <img src="{% static 'img/logo.png' %}" alt="Ake.fx" class="auth-logo">
+            </div>
 
-            <!-- Form -->
+            <!-- Title -->
+            <h1 class="auth-title text-center mb-2">Xush kelibsiz!</h1>
+            <p class="auth-subtitle text-center text-muted mb-4">Platformaga kirish uchun ma'lumotlarni kiriting</p>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Login Form -->
             <form method="post" id="loginForm" class="auth-form needs-validation" novalidate>
                 {% csrf_token %}
-                
-                <!-- Username field -->
+
+                <!-- Username/Email field -->
                 <div class="form-floating mb-3">
-                    <input type="text" name="{{ form.username.name }}" 
-                           class="form-control" id="username" 
-                           placeholder="Username" required>
-                    <label for="username">Username</label>
+                    <input type="text" name="{{ form.username.name }}"
+                           class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                           id="username" placeholder="Username" required
+                           autocomplete="username">
+                    <label for="username">
+                        <i class="bi bi-person me-2"></i>Username yoki Email
+                    </label>
+                    {% if form.username.errors %}
                     <div class="invalid-feedback">
-                        Iltimos, usernameni kiriting
+                        {{ form.username.errors|join:", " }}
                     </div>
+                    {% endif %}
                 </div>
 
                 <!-- Password field -->
-                <div class="form-floating mb-3">
-                    <input type="password" name="{{ form.password.name }}" 
-                           class="form-control" id="password" 
-                           placeholder="Password" required>
-                    <label for="password">Parol</label>
-                    <div class="invalid-feedback">
-                        Iltimos, parolni kiriting
-                    </div>
+                <div class="form-floating mb-3 password-field">
+                    <input type="password" name="{{ form.password.name }}"
+                           class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+                           id="password" placeholder="Password" required
+                           autocomplete="current-password">
+                    <label for="password">
+                        <i class="bi bi-lock me-2"></i>Parol
+                    </label>
                     <button type="button" class="btn btn-link password-toggle" 
-                            onclick="togglePassword()">
+                            onclick="togglePassword('password')">
                         <i class="bi bi-eye"></i>
                     </button>
+                    {% if form.password.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.password.errors|join:", " }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Remember me & Forgot password -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="remember">
-                        <label class="form-check-label" for="remember">Eslab qolish</label>
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label user-select-none" for="remember">Eslab qolish</label>
                     </div>
+                    <a href="{% url 'password_reset' %}" class="text-primary text-decoration-none">
+                        Parolni unutdingizmi?
+                    </a>
                 </div>
 
                 <!-- Submit button -->
-                <button type="submit" class="btn btn-primary w-100 mb-3">
+                <button type="submit" class="btn btn-primary w-100 mb-3 position-relative">
                     <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-                    Kirish
+                    <span class="btn-text">Kirish</span>
                 </button>
 
+                <!-- Social login -->
+                <div class="social-login text-center">
+                    <p class="text-muted mb-3">Yoki ijtimoiy tarmoqlar orqali kiring</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-outline-primary social-btn">
+                            <i class="bi bi-google me-2"></i>Google
+                        </button>
+                        <button type="button" class="btn btn-outline-primary social-btn">
+                            <i class="bi bi-telegram me-2"></i>Telegram
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Register link -->
-                <p class="text-center mb-0">
+                <p class="text-center mt-4 mb-0">
                     Akkauntingiz yo'qmi? 
                     <a href="{% url 'register' %}" class="text-primary">Ro'yxatdan o'ting</a>
                 </p>
@@ -69,7 +109,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0d6efd20 0%, #6610f220 100%);
+    background: linear-gradient(135deg, #0d6efd15 0%, #6610f215 100%);
     padding: 2rem;
 }
 
@@ -80,142 +120,120 @@
 
 .auth-card {
     background: white;
-    padding: 2rem;
+    padding: 2.5rem;
     border-radius: 1rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
 }
 
 .auth-logo {
     height: 60px;
     width: auto;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .auth-title {
     font-size: 1.75rem;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 0.5rem;
+    font-weight: 700;
+    color: #2c3e50;
 }
 
-.auth-subtitle {
-    color: #6c757d;
-    text-align: center;
-    font-size: 0.95rem;
-}
-
-.auth-form .form-floating {
+.password-field {
     position: relative;
 }
 
 .password-toggle {
     position: absolute;
-    right: 0;
+    right: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
-    background: none;
-    border: none;
-    padding: 0.5rem;
+    z-index: 3;
+    padding: 0.25rem;
     color: #6c757d;
+    border: none;
 }
 
-.form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+.password-toggle:hover {
+    color: var(--bs-primary);
 }
 
-.btn-primary {
-    padding: 0.75rem;
-    font-weight: 500;
+.social-btn {
+    flex: 1;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
     transition: all 0.3s ease;
 }
 
-.btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.2);
+.social-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
 }
 
-/* Dark mode styles */
+.form-floating > .form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
     .auth-card {
-        background: #212529;
+        background-color: #2c3e50;
+    }
+
+    .auth-title {
         color: #fff;
     }
-    
-    .auth-subtitle {
-        color: #adb5bd;
-    }
-    
+
     .form-control {
-        background-color: #343a40;
-        border-color: #495057;
+        background-color: #34495e;
+        border-color: #4a5568;
         color: #fff;
     }
-    
+
     .form-control:focus {
-        background-color: #343a40;
+        background-color: #34495e;
         color: #fff;
+    }
+
+    .form-floating > label {
+        color: #cbd5e0;
     }
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
     const form = document.getElementById('loginForm');
-    
-    form.addEventListener('submit', function(event) {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    const btnText = submitBtn.querySelector('.btn-text');
+
+    // Form validation
+    form.addEventListener('submit', function(e) {
         if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
+            e.preventDefault();
+            e.stopPropagation();
         } else {
-            const button = form.querySelector('button[type="submit"]');
-            const spinner = button.querySelector('.spinner-border');
-            button.disabled = true;
+            // Show loading state
+            submitBtn.disabled = true;
             spinner.classList.remove('d-none');
+            btnText.textContent = 'Kirish...';
         }
-        
         form.classList.add('was-validated');
     });
-    
-    // Remember me functionality
-    const rememberCheck = document.getElementById('remember');
-    const username = document.getElementById('username');
-    
-    // Load saved username
-    const savedUsername = localStorage.getItem('rememberedUsername');
-    if (savedUsername) {
-        username.value = savedUsername;
-        rememberCheck.checked = true;
-    }
-    
-    // Save username when "Remember me" is checked
-    rememberCheck.addEventListener('change', function() {
-        if (this.checked) {
-            localStorage.setItem('rememberedUsername', username.value);
+
+    // Password toggle
+    window.togglePassword = function(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = input.parentElement.querySelector('.password-toggle i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
         } else {
-            localStorage.removeItem('rememberedUsername');
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
         }
-    });
-});
-
-// Password visibility toggle
-function togglePassword() {
-    const passwordInput = document.getElementById('password');
-    const toggleBtn = document.querySelector('.password-toggle i');
-    
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleBtn.classList.replace('bi-eye', 'bi-eye-slash');
-    } else {
-        passwordInput.type = 'password';
-        toggleBtn.classList.replace('bi-eye-slash', 'bi-eye');
     }
-}
-
-// Show password strength
-document.getElementById('password').addEventListener('input', function() {
-    // Add password strength indicator logic here
 });
 </script>
 {% endblock %}
