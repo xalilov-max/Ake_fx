@@ -1151,12 +1151,6 @@ footer {
   border: 1px solid var(--gray-200);
 }
 
-.pricing-table:hover {
-  transform: translateY(-10px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--primary);
-}
-
 .pricing-header {
   background: var(--gray-100);
   padding: 2rem;
@@ -1174,10 +1168,6 @@ footer {
   border-color: var(--primary);
   z-index: 1;
   transform: scale(1.05);
-}
-
-.pricing-table.featured:hover {
-  transform: scale(1.05) translateY(-10px);
 }
 
 .pricing-title {

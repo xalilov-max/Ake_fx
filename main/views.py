@@ -226,8 +226,12 @@ def lesson_detail(request, course_id, lesson_id):
 def profile(request):
     if not request.user.is_superuser:
         profile, created = Profile.objects.get_or_create(user=request.user)
-        orders = Order.objects.filter(user=request.user, is_paid=True)
-        return render(request, 'profile.html', {'profile': profile, 'orders': orders})
+        # Yozilgan kurslarni olish
+        enrollments = CourseEnrollment.objects.filter(user=request.user).select_related('course')
+        return render(request, 'profile.html', {
+            'profile': profile, 
+            'enrollments': enrollments
+        })
     else:
         messages.warning(request, "Admin foydalanuchilar uchun profil mavjud emas.")
         return redirect('admin:index')  # Admin panelga qaytarish

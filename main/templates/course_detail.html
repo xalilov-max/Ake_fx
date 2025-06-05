@@ -6,8 +6,18 @@
 <div class="course-hero py-5 bg-primary-soft position-relative overflow-hidden">
     <div class="container py-4">
         <div class="row align-items-center g-4">
+            <!-- Kurs ma'lumotlari -->
             <div class="col-lg-7">
-                <span class="badge bg-primary-gradient mb-3 px-3 py-2 rounded-pill">{{ course.level }}</span>
+                <!-- Kurs rasmi (mobile uchun) -->
+                <div class="d-block d-lg-none mb-4">
+                    <img src="{{ course.image.url }}" 
+                         alt="{{ course.title }}" 
+                         class="img-fluid rounded-4 shadow-lg">
+                </div>
+
+                <span class="badge bg-primary-gradient mb-3 px-3 py-2 rounded-pill">
+                    {{ course.level }} • {{ course.category }}
+                </span>
                 <h1 class="display-5 fw-bold mb-3">{{ course.title }}</h1>
                 <p class="lead mb-4 text-dark-emphasis">{{ course.description }}</p>
                 
@@ -28,24 +38,40 @@
                 </div>
 
                 <!-- Mentor info -->
-                <div class="d-flex align-items-center">
-                    <img src="{{ course.mentor.image.url }}" alt="{{ course.mentor.full_name }}" 
-                         class="rounded-circle border-3 border-white shadow" width="64" height="64"
-                         style="object-fit: cover;">
-                    <div class="ms-3">
-                        <h6 class="fw-bold mb-1">{{ course.mentor.full_name }}</h6>
-                        <p class="mb-0 text-dark-emphasis">Professional mentor</p>
+                <div class="mentor-card bg-white rounded-4 p-3 shadow-sm">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ course.mentor.image.url }}" 
+                             alt="{{ course.mentor.full_name }}" 
+                             class="rounded-circle border-3 border-white shadow"
+                             width="64" height="64"
+                             style="object-fit: cover;">
+                        <div class="ms-3">
+                            <h6 class="fw-bold mb-1">{{ course.mentor.full_name }}</h6>
+                            <p class="mb-0 text-muted">{{ course.mentor.specialty }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Course card -->
+            <!-- Kurs rasmi (desktop) va narx -->
             <div class="col-lg-5">
+                <!-- Kurs rasmi faqat desktop ko'rinishda -->
+                <div class="course-image-wrapper d-none d-lg-block mb-4">
+                    <img src="{{ course.image.url }}" 
+                         alt="{{ course.title }}" 
+                         class="img-fluid rounded-4 shadow-lg">
+                </div>
+
+                <!-- Narx va xarid kartasi -->
                 <div class="card border-0 shadow-lg rounded-4 position-relative hover-lift">
+                    <!-- Card background gradient -->
                     <div class="position-absolute top-0 start-0 w-100 h-100 rounded-4"
                          style="background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1) 0%, rgba(var(--bs-primary-rgb), 0.05) 100%);
-                                backdrop-filter: blur(5px); z-index: -1;"></div>
+                                backdrop-filter: blur(5px); z-index: -1;">
+                    </div>
+
                     <div class="card-body p-4">
+                        <!-- Narx -->
                         <div class="text-center mb-4">
                             <h2 class="display-6 fw-bold text-primary mb-0">
                                 ${{ course.price }}
@@ -53,6 +79,7 @@
                             <p class="text-muted">Bir martalik to'lov</p>
                         </div>
 
+                        <!-- Xarid/Kirish knopkalari -->
                         {% if request.user.is_authenticated %}
                             {% if course.is_paid %}
                             <div class="alert alert-success d-flex align-items-center border-0 rounded-3">
@@ -66,7 +93,7 @@
                             </a>
                             {% endif %}
                         {% else %}
-                        <div class="alert alert-warning d-flex align-items-center border-0 rounded-3">
+                        <div class="alert alert-warning border-0 rounded-3">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>
                             <p class="mb-0">Kursni sotib olish uchun avval 
                                 <a href="{% url 'login' %}" class="alert-link">tizimga kiring</a>
@@ -74,17 +101,17 @@
                         </div>
                         {% endif %}
 
-                        <!-- Course features -->
-                        <ul class="list-unstyled mb-0">
-                            <li class="d-flex align-items-center py-2">
+                        <!-- Kurs xususiyatlari -->
+                        <ul class="list-group list-group-flush mt-4">
+                            <li class="list-group-item bg-transparent px-0 d-flex align-items-center">
                                 <i class="bi bi-infinity fs-5 text-primary me-3"></i>
-                                <span>Cheksiz foydalanish imkoniyati</span>
+                                <span>Cheksiz foydalanish</span>
                             </li>
-                            <li class="d-flex align-items-center py-2">
+                            <li class="list-group-item bg-transparent px-0 d-flex align-items-center">
                                 <i class="bi bi-phone fs-5 text-primary me-3"></i>
                                 <span>Mobil qurilmalarga moslangan</span>
                             </li>
-                            <li class="d-flex align-items-center py-2">
+                            <li class="list-group-item bg-transparent px-0 d-flex align-items-center">
                                 <i class="bi bi-patch-check fs-5 text-primary me-3"></i>
                                 <span>Sertifikat bilan taqdirlanadi</span>
                             </li>
@@ -200,6 +227,27 @@
 /* Course page specific styles */
 .course-hero {
     background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1) 0%, rgba(var(--bs-primary-rgb), 0.05) 100%);
+}
+
+.course-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.course-image-wrapper img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.mentor-card {
+    transition: transform 0.3s ease;
+}
+
+.mentor-card:hover {
+    transform: translateY(-3px);
 }
 
 .course-stat {

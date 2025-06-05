@@ -2,79 +2,129 @@
 {% load static %}
 
 {% block content %}
-<article class="news-detail py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- News Header -->
-                <header class="news-header text-center mb-5">
-                    <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill mb-3">
-                        <i class="bi bi-newspaper me-2"></i>Yangilik
-                    </span>
-                    <h1 class="display-4 fw-bold mb-3">{{ news.title }}</h1>
-                    <div class="d-flex align-items-center justify-content-center text-muted">
-                        <span class="me-3">
-                            <i class="bi bi-calendar2 me-2"></i>
-                            {{ news.created_at|date:"d.m.Y" }}
-                        </span>
+<article class="news-detail">
+    <!-- Hero Section -->
+    <div class="news-hero py-5">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <!-- Rasm (chap tomon) -->
+                <div class="col-lg-6">
+                    {% if news.image %}
+                    <div class="news-image-wrapper">
+                        <img src="{{ news.image.url }}" 
+                             class="img-fluid rounded-4 shadow-lg" 
+                             alt="{{ news.title }}">
+                        <div class="image-overlay"></div>
                     </div>
-                </header>
-
-                <!-- News Image -->
-                {% if news.image %}
-                <div class="news-image mb-5">
-                    <img src="{{ news.image.url }}" 
-                         class="img-fluid rounded-4 shadow-sm" 
-                         alt="{{ news.title }}">
+                    {% endif %}
                 </div>
-                {% endif %}
+                
+                <!-- Sarlavha va ma'lumotlar (o'ng tomon) -->
+                <div class="col-lg-6">
+                    <header class="news-header">
+                        <span class="badge bg-primary px-3 py-2 rounded-pill mb-4">
+                            <i class="bi bi-newspaper me-2"></i>Yangilik
+                        </span>
+                        <h1 class="display-4 fw-bold mb-4">{{ news.title }}</h1>
+                        <div class="d-flex align-items-center text-muted mb-4">
+                            <span class="me-4">
+                                <i class="bi bi-calendar2 me-2"></i>
+                                {{ news.created_at|date:"d.m.Y" }}
+                            </span>
+                        </div>
+                        <p class="lead text-muted">{{ news.short_text }}</p>
+                    </header>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- News Content -->
-                <div class="news-content">
-                    <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5">
+    <!-- Asosiy kontent -->
+    <div class="news-main py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="news-content card border-0 shadow-sm rounded-4 p-4 p-lg-5">
                         {{ news.content|safe }}
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Related News -->
-        {% if related_news %}
-        <div class="related-news mt-5">
-            <h3 class="text-center fw-bold mb-4">O'xshash yangiliklar</h3>
-            <div class="row g-4">
-                {% for news in related_news %}
-                <div class="col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
-                        {% if news.image %}
-                        <div class="card-img-top position-relative" style="height: 200px;">
-                            <img src="{{ news.image.url }}" 
-                                 class="w-100 h-100 object-fit-cover rounded-top-4" 
-                                 alt="{{ news.title }}">
+    <!-- Related News -->
+    {% if related_news %}
+    <div class="related-news mt-5">
+        <h3 class="text-center fw-bold mb-4">O'xshash yangiliklar</h3>
+        <div class="row g-4">
+            {% for news in related_news %}
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
+                    {% if news.image %}
+                    <div class="card-img-top position-relative" style="height: 200px;">
+                        <img src="{{ news.image.url }}" 
+                             class="w-100 h-100 object-fit-cover rounded-top-4" 
+                             alt="{{ news.title }}">
+                    </div>
+                    {% endif %}
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center text-muted small mb-2">
+                            <i class="bi bi-calendar2 me-2"></i>
+                            {{ news.created_at|date:"d.m.Y" }}
                         </div>
-                        {% endif %}
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center text-muted small mb-2">
-                                <i class="bi bi-calendar2 me-2"></i>
-                                {{ news.created_at|date:"d.m.Y" }}
-                            </div>
-                            <h5 class="card-title fw-bold mb-3">{{ news.title }}</h5>
-                            <p class="card-text text-muted">{{ news.short_text|truncatechars:100 }}</p>
-                            <a href="{% url 'news_detail' news.id %}" class="stretched-link"></a>
-                        </div>
+                        <h5 class="card-title fw-bold mb-3">{{ news.title }}</h5>
+                        <p class="card-text text-muted">{{ news.short_text|truncatechars:100 }}</p>
+                        <a href="{% url 'news_detail' news.id %}" class="stretched-link"></a>
                     </div>
                 </div>
-                {% endfor %}
             </div>
+            {% endfor %}
         </div>
-        {% endif %}
     </div>
+    {% endif %}
 </article>
 
 <style>
 .news-detail {
     background: linear-gradient(to bottom, #f8f9fa, #fff);
-    padding-top: 120px;
+    padding-top: 80px;
+}
+
+.news-hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.news-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    transform: perspective(1000px) rotateY(-5deg);
+    transition: transform 0.5s ease;
+}
+
+.news-image-wrapper:hover {
+    transform: perspective(1000px) rotateY(0);
+}
+
+.news-image-wrapper img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        45deg,
+        rgba(var(--bs-primary-rgb), 0.1),
+        rgba(var(--bs-primary-rgb), 0.05)
+    );
+    pointer-events: none;
 }
 
 .news-content {
@@ -82,22 +132,27 @@
     line-height: 1.8;
 }
 
-.hover-lift {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+.news-header {
+    position: relative;
+    z-index: 1;
 }
 
-.hover-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
-}
-
+/* Media Queries */
 @media (max-width: 991.98px) {
     .news-detail {
-        padding-top: 80px;
+        padding-top: 60px;
     }
+    
+    .news-image-wrapper {
+        transform: none;
+        margin-bottom: 2rem;
+    }
+    
     .news-header h1 {
         font-size: 2.5rem;
     }
 }
+
+/* ...existing hover-lift styles... */
 </style>
 {% endblock %}
