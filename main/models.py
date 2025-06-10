@@ -84,6 +84,25 @@ class CourseEnrollment(models.Model):
     user = models.ForeignKey(users, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     enrolled_at = models.DateTimeField(auto_now_add=True)
+    last_accessed = models.DateTimeField(auto_now=True)
+    _progress = models.IntegerField(default=0, db_column='progress')  # Progress field qo'shildi
+
+    def calculate_progress(self):
+        """Progress ni hisoblash"""
+        total_lessons = self.course.lessons.count()
+        if total_lessons > 0:
+            completed_lessons = CompletedLesson.objects.filter(
+                user=self.user,
+                lesson__course=self.course
+            ).count()
+            self._progress = int((completed_lessons / total_lessons) * 100)
+            self.save(update_fields=['_progress'])
+        return self._progress
+
+    @property
+    def progress(self):
+        """Progress ni olish"""
+        return self._progress
 
     def __str__(self):
         return f"{self.user.username} -> {self.course.title}"

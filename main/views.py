@@ -226,12 +226,23 @@ def lesson_detail(request, course_id, lesson_id):
 def profile(request):
     if not request.user.is_superuser:
         profile, created = Profile.objects.get_or_create(user=request.user)
-        # Yozilgan kurslarni olish
-        enrollments = CourseEnrollment.objects.filter(user=request.user).select_related('course')
-        return render(request, 'profile.html', {
-            'profile': profile, 
-            'enrollments': enrollments
-        })
+        
+        # Yozilgan kurslar va progress
+        enrollments = CourseEnrollment.objects.filter(
+            user=request.user
+        ).select_related('course')
+        
+        # Progress hisoblab chiqish
+        for enrollment in enrollments:
+            enrollment.calculate_progress()
+        
+        context = {
+            'profile': profile,
+            'enrollments': enrollments,
+            'enrolled_courses_count': enrollments.count(),
+        }
+        
+        return render(request, 'profile.html', context)
     else:
         messages.warning(request, "Admin foydalanuchilar uchun profil mavjud emas.")
         return redirect('admin:index')  # Admin panelga qaytarish
