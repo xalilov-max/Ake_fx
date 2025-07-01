@@ -1,6 +1,6 @@
 from unicodedata import category
 from django.shortcuts import render,get_object_or_404, redirect
-from .models import CompletedLesson, Course, Lesson, Mentor, Order, Review, Student, Contact, CourseEnrollment,Profile,Category,Level, AboutPage, News
+from .models import CompletedLesson, Course, Lesson, Mentor, Order, Review, Student, Contact, CourseEnrollment,Profile,Category,Level, AboutPage, News, StudentVideo
 from .forms import ContactForm
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -17,17 +17,27 @@ from django.utils.timezone import now
 from datetime import timedelta
 import json
 
+def get_embed_url(video_url):
+    if "youtube.com/watch?v=" in video_url:
+        return video_url.replace("watch?v=", "embed/")
+    elif "youtu.be/" in video_url:
+        video_id = video_url.split("/")[-1]
+        return f"https://www.youtube.com/embed/{video_id}"
+    return video_url
+
 def index(request):
-    courses = Course.objects.all()[:6]  # So'nggi 6 ta kurs
+    courses = Course.objects.all()[:6]
     mentors = Mentor.objects.all()
-    reviews = Review.objects.all()[:3]  # So'nggi 3 ta sharh
-    news_list = News.objects.order_by('-created_at')[:3]  # So'nggi 3 ta yangilik
-    
+    reviews = Review.objects.all()[:3]
+    news_list = News.objects.order_by('-created_at')[:3]
+    student_videos = StudentVideo.objects.filter(is_active=True).order_by('-created_at')[:6]
+
     context = {
         'courses': courses,
-        'mentors': mentors, 
+        'mentors': mentors,
         'reviews': reviews,
         'news_list': news_list,
+        'student_videos': student_videos,
     }
     return render(request, 'index.html', context)
 
@@ -285,14 +295,6 @@ def profile_image_update(request):
     
     messages.error(request, 'Rasm yuklashda xatolik yuz berdi')
     return redirect('profile')
-
-def get_embed_url(video_url):
-    if "youtube.com/watch?v=" in video_url:
-        return video_url.replace("watch?v=", "embed/")
-    elif "youtu.be/" in video_url:
-        video_id = video_url.split("/")[-1]
-        return f"https://www.youtube.com/embed/{video_id}"
-    return video_url
 
 def search(request):
     query = request.GET.get('q', '')  # Qidiruv so'zi

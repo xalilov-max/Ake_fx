@@ -255,3 +255,11 @@ class News(models.Model):
 
     def get_absolute_url(self):
         return reverse('news_detail', args=[str(self.id)])
+
+class StudentVideo(models.Model):
+    title = models.CharField(max_length=200)
+    student_name = models.CharField(max_length=100)
+    video_file = models.FileField(upload_to='videos/')
+    thumbnail = models.ImageField(upload_to='videos/thumbnails/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -84,7 +84,7 @@ Ake.fx foydalanuvchilarga **forex va trading** bo‘yicha sifatli kurslar, mento
 ## 🚀 Ishga Tushirish
 
 ```bash
-git clone https://github.com/xalilov-max/Ake_fxdjango.git
+git clone https://github.com/xalilov-max/Ake_fx.git
 cd akefx
 python -m venv venv
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass

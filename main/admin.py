@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from .models import (
     Mentor, Course, Order, Student, Contact, 
     CourseEnrollment, Lesson, Profile, Category, 
-    Level, Review, AboutPage, News
+    Level, Review, AboutPage, News, StudentVideo
 )
 
 @admin.register(AboutPage)
@@ -176,6 +176,11 @@ class NewsAdmin(admin.ModelAdmin):
     search_fields = ('title', 'short_text')
     list_filter = ('created_at',)
 
+@admin.register(StudentVideo)
+class StudentVideoAdmin(admin.ModelAdmin):
+    list_display = ['title', 'student_name', 'is_active', 'created_at']
+    list_filter = ['is_active']
+    search_fields = ['title', 'student_name']
 
 # Qolgan modellar uchun sodda ro'yxatdan o'tkazish
 admin.site.register(Category)
